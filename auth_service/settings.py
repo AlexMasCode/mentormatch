@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     # ваш додаток
     'users',
     'gunicorn',
+    'rest_framework_simplejwt.token_blacklist',
 ]
 
 REST_FRAMEWORK = {
