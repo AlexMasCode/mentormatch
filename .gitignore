@@ -1,0 +1,52 @@
+# Byte-compiled / optimized / DLL files
+*.py[cod]
+__pycache__/
+*.so
+
+# C extensions
+*.egg-info/
+.eggs/
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+staticfiles/
+
+# Virtual environment
+.env
+.venv
+env/
+venv/
+
+# macOS
+.DS_Store
+
+# IDEs and editors
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# Distribution / packaging
+build/
+dist/
+*.egg
+
+# Coverage reports
+htmlcov/
+.tox/
+.nox/
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Other
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Docker
+docker-compose.override.yml
