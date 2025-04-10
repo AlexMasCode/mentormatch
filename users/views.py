@@ -1,5 +1,3 @@
-# users/views.py
-
 from rest_framework import generics, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -11,11 +9,11 @@ from .serializers import RegisterSerializer
 
 User = get_user_model()
 
-# Регистрация нового пользователя
+# Registering a new user
 class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
 
-# Логаут: добавление refresh-токена в blacklist
+# Logout: adding refresh token to the blacklist
 class LogoutView(APIView):
     permission_classes = (IsAuthenticated,)
 
@@ -28,7 +26,7 @@ class LogoutView(APIView):
         except Exception as e:
             return Response({"error": "Invalid token."}, status=status.HTTP_400_BAD_REQUEST)
 
-# Изменение пароля для аутентифицированного пользователя
+# Changing password for an authenticated user
 class PasswordChangeView(APIView):
     permission_classes = (IsAuthenticated,)
 
@@ -44,28 +42,28 @@ class PasswordChangeView(APIView):
         user.save()
         return Response({"detail": "Password changed successfully."}, status=status.HTTP_200_OK)
 
-# Инициирование сброса пароля (здесь – просто демонстрация, реальная реализация требует отправки email)
+# Initiating password reset (for demonstration only, real implementation should send an email)
 class PasswordResetView(APIView):
     def post(self, request):
         email = request.data.get("email")
         try:
             user = User.objects.get(email=email)
-            # Здесь необходимо сгенерировать токен и отправить email с ссылкой для сброса пароля
-            # Для демонстрации вернём успешный ответ
+            # Here, a token should be generated and an email sent with the password reset link
+            # For demonstration, we return a success response
             return Response({"detail": "Password reset link sent to email."}, status=status.HTTP_200_OK)
         except User.DoesNotExist:
             return Response({"error": "User with this email does not exist."}, status=status.HTTP_400_BAD_REQUEST)
 
-# Подтверждение сброса пароля (приём нового пароля по ссылке из email)
+# Confirming password reset (receiving the new password via link from email)
 class PasswordResetConfirmView(APIView):
     def post(self, request):
-        # В реальной реализации сюда придёт uid и token, подтверждающие право сброса пароля
+        # In a real implementation, uid and token would be passed to verify the right to reset password
         uid = request.data.get("uid")
         token = request.data.get("token")
         new_password = request.data.get("new_password")
 
-        # Здесь необходимо проверить uid и token.
-        # Для демонстрации примем, что проверка прошла успешно.
+        # Token and uid verification should be implemented here.
+        # For demonstration, we assume it's successful.
         try:
             user = User.objects.get(pk=uid)
             user.set_password(new_password)

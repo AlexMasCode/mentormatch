@@ -1,5 +1,3 @@
-# users/urls.py
-
 from django.urls import path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .views import (
@@ -11,18 +9,18 @@ from .views import (
 )
 
 urlpatterns = [
-    # Регистрация нового пользователя
+    # User registration
     path('register/', RegisterView.as_view(), name='register'),
-    # Аутентификация (логин) с выдачей JWT токенов
+    # Authentication (login) with JWT token issuance
     path('login/', TokenObtainPairView.as_view(), name='login'),
-    # Обновление access-токена с использованием refresh-токена
+    # Refresh the access token using a refresh token
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    # Выход из системы (аннулирование refresh-токена)
+    # Logout (invalidate the refresh token)
     path('logout/', LogoutView.as_view(), name='logout'),
-    # Изменение пароля для аутентифицированного пользователя
+    # Change password for an authenticated user
     path('password/change/', PasswordChangeView.as_view(), name='password_change'),
-    # Инициирование сброса пароля (отправка ссылки на email)
+    # Initiate password reset (send reset link via email)
     path('password/reset/', PasswordResetView.as_view(), name='password_reset'),
-    # Подтверждение сброса пароля (приём нового пароля по ссылке)
+    # Confirm password reset (accept new password via reset link)
     path('password/reset/confirm/', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
 ]
