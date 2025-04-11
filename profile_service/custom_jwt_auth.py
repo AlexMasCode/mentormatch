@@ -1,0 +1,17 @@
+# profile_service/custom_jwt_auth.py
+
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework_simplejwt.models import TokenUser
+from rest_framework_simplejwt.exceptions import InvalidToken
+
+class CustomJWTAuthentication(JWTAuthentication):
+    def get_user(self, validated_token):
+        """
+        Замість пошуку користувача у локальній базі, повертаємо TokenUser,
+        сформований з loadload токена.
+        """
+        # Попытка взять идентификатор пользователя из поля "user_id" или "sub"
+        user_id = validated_token.get("user_id") or validated_token.get("sub")
+        if user_id is None:
+            raise InvalidToken("Token contained no recognizable user identification")
+        return TokenUser(validated_token)

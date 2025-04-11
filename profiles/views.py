@@ -4,14 +4,14 @@ from .serializers import (
     MentorProfileSerializer, MenteeProfileSerializer,
     CompanySerializer, CatalogIndustrySerializer, CatalogFieldSerializer
 )
-from .permissions import IsOwnerOrAdmin
+from .permissions import IsOwnerOrAdmin, IsMentor, IsMentee
 from rest_framework.permissions import AllowAny
 
 # Retrieve and update a mentor profile (only for the owner or admin)
 class MentorProfileDetail(generics.RetrieveUpdateAPIView):
     queryset = MentorProfile.objects.all()
     serializer_class = MentorProfileSerializer
-    permission_classes = [IsOwnerOrAdmin]
+    permission_classes = [IsOwnerOrAdmin, IsMentor]
 
     def get_object(self):
         # Assumes pk is the profile ID (user_id is stored in the model)
@@ -21,7 +21,7 @@ class MentorProfileDetail(generics.RetrieveUpdateAPIView):
 class MenteeProfileDetail(generics.RetrieveUpdateAPIView):
     queryset = MenteeProfile.objects.all()
     serializer_class = MenteeProfileSerializer
-    permission_classes = [IsOwnerOrAdmin]
+    permission_classes = [IsOwnerOrAdmin, IsMentee]
 
 # List all mentors, with optional filtering by skill, company, experience, etc.
 class MentorProfileList(generics.ListAPIView):
