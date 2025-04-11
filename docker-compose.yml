@@ -18,10 +18,9 @@ services:
     depends_on:
       - db
     environment:
-      # Пример подключения к базе через DATABASE_URL (используйте настройки, соответствующие вашему проекту)
       - DATABASE_URL=postgres://myuser:mypassword@db:5432/auth_service_db
     volumes:
-      - .:/app  # если хотите монтировать локальные изменения (для разработки)
+      - .:/app  # for local changes
 
 volumes:
   postgres_data:

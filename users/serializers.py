@@ -11,10 +11,10 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def get_token(cls, user):
         token = super().get_token(user)
 
-        # Добавляем дополнительное поле "role" в payload токена
+        # Add additional "role" field to the token payload
         token['role'] = user.role
-        token['first_name'] = user.first_name  # при необходимости
-        token['last_name'] = user.last_name  # при необходимости
+        token['first_name'] = user.first_name
+        token['last_name'] = user.last_name
 
         return token
 
