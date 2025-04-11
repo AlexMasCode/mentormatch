@@ -7,10 +7,10 @@ from rest_framework_simplejwt.exceptions import InvalidToken
 class CustomJWTAuthentication(JWTAuthentication):
     def get_user(self, validated_token):
         """
-        Замість пошуку користувача у локальній базі, повертаємо TokenUser,
-        сформований з loadload токена.
+        Instead of looking for the user in the local database, return a TokenUser
+        generated from the token payload.
         """
-        # Попытка взять идентификатор пользователя из поля "user_id" или "sub"
+        # Attempt to retrieve the user ID from the "user_id" or "sub" field
         user_id = validated_token.get("user_id") or validated_token.get("sub")
         if user_id is None:
             raise InvalidToken("Token contained no recognizable user identification")

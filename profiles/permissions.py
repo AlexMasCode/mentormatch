@@ -9,16 +9,16 @@ class IsOwnerOrAdmin(permissions.BasePermission):
 
 class IsMentor(permissions.BasePermission):
     """
-    Разрешение для пользователей с ролью "MENTOR".
-    Ожидается, что в JWT-токене присутствует поле 'role'.
+    Permission for users with the "MENTOR" role.
+    It is expected that the JWT token contains the 'role' field.
     """
     def has_permission(self, request, view):
         return request.user and getattr(request.user, 'role', None) == 'MENTOR'
 
 class IsMentee(permissions.BasePermission):
     """
-    Разрешение для пользователей с ролью "MENTEE".
-    Ожидается, что в JWT-токене присутствует поле 'role'.
+    Permission for users with the "MENTEE" role.
+    It is expected that the JWT token contains the 'role' field.
     """
     def has_permission(self, request, view):
         return request.user and getattr(request.user, 'role', None) == 'MENTEE'

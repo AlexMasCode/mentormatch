@@ -3,7 +3,7 @@ import os
 import json
 from kafka import KafkaConsumer
 
-# Настройка Django – для доступа к моделям
+# Django setup – for accessing models
 import django
 import sys
 
@@ -14,7 +14,7 @@ django.setup()
 
 from profiles.models import MentorProfile, MenteeProfile
 
-# Читаем настройки брокера и топика из переменных окружения
+# Read broker and topic settings from environment variables
 KAFKA_BROKER = os.environ.get("KAFKA_BROKER", "localhost:9092")
 TOPIC_NEW_USER = os.environ.get("KAFKA_TOPIC_NEW_USER", "new_user_topic")
 
@@ -35,7 +35,7 @@ for message in consumer:
     role = event.get("role")
     print(f"Received event for user_id: {user_id} with role: {role}")
 
-    # Проверяем, создан ли профиль, если нет — создаём
+    # Check if the profile already exists, and create it if not
     if role == "MENTOR":
         if not MentorProfile.objects.filter(user_id=user_id).exists():
             MentorProfile.objects.create(user_id=user_id, bio="", experience_years=0)

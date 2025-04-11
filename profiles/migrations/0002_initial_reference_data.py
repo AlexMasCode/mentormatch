@@ -5,7 +5,7 @@ def create_initial_data(apps, schema_editor):
     CatalogIndustry = apps.get_model('profiles', 'CatalogIndustry')
     CatalogField = apps.get_model('profiles', 'CatalogField')
 
-    # Создаём записи для компаний, если их еще нет:
+    # Create company records if they don't already exist
     if not Company.objects.exists():
         Company.objects.create(
             name='Tech Corp',
@@ -48,8 +48,8 @@ def create_initial_data(apps, schema_editor):
             industry='Travel'
         )
 
-    # Создаём несколько индустрий, если их нет:
-    # Список индустрий с названиями
+    # Create several industries if they don't already exist
+    # List of industry names
     industries_data = [
         'Information Technology',
         'Finance',
@@ -68,7 +68,7 @@ def create_initial_data(apps, schema_editor):
         obj, created = CatalogIndustry.objects.get_or_create(name=ind_name)
         created_industries[ind_name] = obj
 
-    # Создаём поля (CatalogField). Для каждой индустрии несколько направлений.
+    # Create fields (CatalogField). For each industry, multiple focus areas
     fields_data = {
         'Information Technology': [
             'Software Development',
@@ -128,7 +128,7 @@ def create_initial_data(apps, schema_editor):
         ],
     }
 
-    # Заполняем CatalogField
+    # Populate CatalogField
     for industry_name, field_list in fields_data.items():
         industry_obj = created_industries[industry_name]
         for field_name in field_list:
@@ -147,7 +147,7 @@ def reverse_initial_data(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('profiles', '0001_initial'),  # Укажите корректную зависимость от вашей первичной миграции
+        ('profiles', '0001_initial'),  # Specify the correct dependency on your initial migration
     ]
 
     operations = [
