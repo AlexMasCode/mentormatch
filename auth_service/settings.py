@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,8 +21,10 @@ AUTH_USER_MODEL = 'users.CustomUser'
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
+JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY", "django-insecure-whf8ix09n#=0fi)%(s1l5b6d0c7y&4c+4pkz0beecjq#@mxc%p")
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-whf8ix09n#=0fi)%(s1l5b6d0c7y&4c+4pkz0beecjq#@mxc%p"
+SECRET_KEY = JWT_SECRET_KEY
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -100,10 +103,10 @@ WSGI_APPLICATION = "auth_service.wsgi.application"
 DATABASES = {
     "default": {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'mentormatch',
+        'NAME': 'auth_service_db',
         'USER': 'postgres',
         'PASSWORD': 'mypassword',
-        'HOST': 'db',
+        'HOST': 'auth_db',
         'PORT': '5432',
     }
 }

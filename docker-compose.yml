@@ -3,13 +3,13 @@ services:
     image: postgres:15
     restart: always
     environment:
-      POSTGRES_DB: mentormatch
+      POSTGRES_DB: auth_service_db
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: mypassword
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "5433:5432"
 
   web:
     build: .
@@ -19,7 +19,7 @@ services:
       - db
     environment:
       # Пример подключения к базе через DATABASE_URL (используйте настройки, соответствующие вашему проекту)
-      - DATABASE_URL=postgres://myuser:mypassword@db:5432/mentormatch
+      - DATABASE_URL=postgres://myuser:mypassword@db:5432/auth_service_db
     volumes:
       - .:/app  # если хотите монтировать локальные изменения (для разработки)
 

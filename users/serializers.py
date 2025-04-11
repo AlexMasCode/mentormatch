@@ -1,26 +1,43 @@
-# auth/serializers.py
-
 from rest_framework import serializers
 from django.contrib.auth import get_user_model, password_validation
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 User = get_user_model()
+
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+
+        # Добавляем дополнительное поле "role" в payload токена
+        token['role'] = user.role
+        token['first_name'] = user.first_name  # при необходимости
+        token['last_name'] = user.last_name  # при необходимости
+
+        return token
+
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
 
+    role = serializers.ChoiceField(choices=User.ROLE_CHOICES, default='MENTEE')
+
     class Meta:
         model = User
-        fields = ('id', 'first_name', 'last_name', 'email', 'password')
+        fields = ('id', 'first_name', 'last_name', 'email', 'password', 'role')
 
     def create(self, validated_data):
         user = User.objects.create_user(
             email=validated_data['email'],
             first_name=validated_data['first_name'],
             last_name=validated_data['last_name'],
-            password=validated_data['password']
+            password=validated_data['password'],
+            role=validated_data.get('role', 'MENTEE')
         )
         return user
+
 
 class PasswordChangeSerializer(serializers.Serializer):
     old_password = serializers.CharField(required=True)
@@ -36,6 +53,7 @@ class PasswordChangeSerializer(serializers.Serializer):
             raise serializers.ValidationError({"old_password": "Wrong password."})
         return data
 
+
 class PasswordResetSerializer(serializers.Serializer):
     email = serializers.EmailField()
 
@@ -43,6 +61,7 @@ class PasswordResetSerializer(serializers.Serializer):
         if not User.objects.filter(email=value).exists():
             raise serializers.ValidationError("Пользователь с таким email не найден.")
         return value
+
 
 class PasswordResetConfirmSerializer(serializers.Serializer):
     email = serializers.EmailField()

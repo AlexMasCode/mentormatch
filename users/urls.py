@@ -5,14 +5,14 @@ from .views import (
     LogoutView,
     PasswordChangeView,
     PasswordResetView,
-    PasswordResetConfirmView,
+    PasswordResetConfirmView, CustomTokenObtainPairView,
 )
 
 urlpatterns = [
     # User registration
     path('register/', RegisterView.as_view(), name='register'),
     # Authentication (login) with JWT token issuance
-    path('login/', TokenObtainPairView.as_view(), name='login'),
+    path('login/', CustomTokenObtainPairView.as_view(), name='login'),
     # Refresh the access token using a refresh token
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     # Logout (invalidate the refresh token)

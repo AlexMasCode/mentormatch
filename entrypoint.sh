@@ -1,14 +1,14 @@
 #!/bin/sh
 set -e
 
-# Создаём миграции (если изменений моделей нет – команда ничего не сделает)
+# Create migrations (if there are no changes in models – this command does nothing)
 python manage.py makemigrations
 
-# Применяем миграции
+# Apply migrations
 python manage.py migrate
 
-# При необходимости можно добавить сбор статики (если проект её использует)
+# Collect static files (if the project uses static files)
 python manage.py collectstatic --noinput
 
-# Передаём управление основной команде (CMD)
+# Pass control to the main command (CMD)
 exec "$@"
