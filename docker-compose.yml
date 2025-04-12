@@ -11,6 +11,21 @@ services:
     ports:
       - "5433:5432"
 
+  auth_consumer:
+    container_name: auth_consumer
+    build:
+      context: ./auth_service
+      dockerfile: Dockerfile
+    command: python manage.py handle_profile_deletion
+    depends_on:
+      - auth_db
+      - kafka
+    environment:
+      - DATABASE_URL=postgres://postgres:mypassword@auth_db:5432/auth_service_db
+      - KAFKA_BROKER=kafka:9092
+      - KAFKA_TOPIC_PROFILE_DELETED=profile_deleted_topic
+
+
   web:
     build: .
     ports:
