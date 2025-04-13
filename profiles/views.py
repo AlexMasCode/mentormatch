@@ -51,7 +51,7 @@ from rest_framework.permissions import AllowAny
         },
     ),
 )
-class MentorProfileDetail(generics.RetrieveUpdateAPIView):
+class MentorProfileDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = MentorProfile.objects.all()
     serializer_class = MentorProfileSerializer
     permission_classes = [IsOwnerOrAdmin, IsMentor]
@@ -95,7 +95,7 @@ class MentorProfileDetail(generics.RetrieveUpdateAPIView):
         },
     ),
 )
-class MenteeProfileDetail(generics.RetrieveUpdateAPIView):
+class MenteeProfileDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = MenteeProfile.objects.all()
     serializer_class = MenteeProfileSerializer
     permission_classes = [IsOwnerOrAdmin, IsMentee]

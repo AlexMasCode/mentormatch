@@ -23,4 +23,4 @@ RUN chmod +x /app/entrypoint.sh
 ENTRYPOINT ["/app/entrypoint.sh"]
 
 # CMD will be executed after entrypoint.sh; you can run gunicorn or runserver for testing
-CMD ["gunicorn", "auth_service.wsgi:application", "--bind", "0.0.0.0:8000"]
+CMD ["gunicorn", "profile_service.wsgi:application", "--bind", "0.0.0.0:8000"]
