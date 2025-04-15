@@ -1,7 +1,8 @@
 from django.urls import path
 from .views import (
     MentorProfileDetail, MenteeProfileDetail, MentorProfileList,
-    CompanyList, CatalogIndustryList, CatalogFieldList, MenteeProfileListAdmin, CompanyDetail, CatalogIndustryDetail, CatalogFieldDetail
+    CompanyList, CatalogIndustryList, CatalogFieldList, MenteeProfileListAdmin,
+    CompanyDetail, CatalogIndustryDetail, CatalogFieldDetail, CompanyAccessValidation
 )
 
 urlpatterns = [
@@ -19,4 +20,6 @@ urlpatterns = [
     path('companies/<int:pk>/', CompanyDetail.as_view(), name='company-detail'),
     path('catalog/industries/<int:pk>/', CatalogIndustryDetail.as_view(), name='catalog-industry-detail'),
     path('catalog/fields/<int:pk>/', CatalogFieldDetail.as_view(), name='catalog-field-detail'),
+
+    path('companies/validate-access/', CompanyAccessValidation.as_view(), name='company-access-validation'),
 ]

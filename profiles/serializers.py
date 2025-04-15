@@ -9,7 +9,7 @@ from .models import (
 class CompanySerializer(serializers.ModelSerializer):
     class Meta:
         model = Company
-        fields = ['id', 'name', 'description', 'industry', 'logo_url']
+        fields = ['id', 'name', 'access_key_hash', 'description', 'industry', 'logo_url']
 
 
 class CatalogIndustrySerializer(serializers.ModelSerializer):

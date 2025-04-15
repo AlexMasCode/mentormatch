@@ -14,6 +14,10 @@ from .serializers import (
     CompanySerializer, CatalogIndustrySerializer, CatalogFieldSerializer
 )
 from .permissions import IsOwnerOrAdmin
+from rest_framework.response import Response
+from rest_framework import status
+from django.contrib.auth.hashers import check_password
+from rest_framework.views import APIView
 
 
 # MentorProfile detail view: Retrieve and update a mentor profile
@@ -249,6 +253,35 @@ class CompanyDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Company.objects.all()
     serializer_class = CompanySerializer
     permission_classes = [IsAdminUser]
+
+
+class CompanyAccessValidation(APIView):
+    """
+    API endpoint for checking if a company access key is valid.
+    Accepts JSON:
+    {
+    "company_id": <int>,
+    "access_key": "<raw_key>"
+    }
+    Returns { "valid": true } or { "valid": false }
+    """
+    permission_classes = [AllowAny]  # maybe will need a restriction
+
+    def post(self, request):
+        company_id = request.data.get("company_id")
+        access_key = request.data.get("access_key")
+        if not company_id or not access_key:
+            return Response({"detail": "company_id and access_key are required."},
+                            status=status.HTTP_400_BAD_REQUEST)
+        try:
+            company = Company.objects.get(id=company_id)
+        except Company.DoesNotExist:
+            return Response({"detail": "Company not found."},
+                            status=status.HTTP_404_NOT_FOUND)
+        if company.access_key_hash and check_password(access_key, company.access_key_hash):
+            return Response({"valid": True})
+        else:
+            return Response({"valid": False}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @extend_schema_view(

@@ -1,4 +1,5 @@
 from django.db import migrations
+from django.contrib.auth.hashers import make_password
 
 def create_initial_data(apps, schema_editor):
     Company = apps.get_model('profiles', 'Company')
@@ -10,42 +11,50 @@ def create_initial_data(apps, schema_editor):
         Company.objects.create(
             name='Tech Corp',
             description='A leading technology company',
-            industry='Information Technology'
+            industry='Information Technology',
+            access_key_hash=make_password("techcorp_secret")
         )
         Company.objects.create(
             name='Finance Inc',
             description='Provider of finance services',
-            industry='Finance'
+            industry='Finance',
+            access_key_hash=make_password("financeinc_secret")
         )
         Company.objects.create(
             name='MediSolutions',
             description='Healthcare software solutions',
-            industry='Healthcare'
+            industry='Healthcare',
+            access_key_hash=make_password("medisolutions_secret")
         )
         Company.objects.create(
             name='EduWorld',
             description='Educational platform provider',
-            industry='Education'
+            industry='Education',
+            access_key_hash=make_password("eduworld_secret")
         )
         Company.objects.create(
             name='ECom Global',
             description='Large e-commerce aggregator',
-            industry='E-commerce'
+            industry='E-commerce',
+            access_key_hash=make_password("ecomglobal_secret")
         )
         Company.objects.create(
             name='GreenEnergy',
             description='Renewable energy solutions',
-            industry='Energy'
+            industry='Energy',
+            access_key_hash=make_password("greenenergy_secret")
         )
         Company.objects.create(
             name='AgroFarm',
             description='Agricultural services and technology',
-            industry='Agriculture'
+            industry='Agriculture',
+            access_key_hash=make_password("agrofarm_secret")
         )
         Company.objects.create(
             name='Travel Explore',
             description='Travel and tourism company',
-            industry='Travel'
+            industry='Travel',
+            access_key_hash=make_password("travelexplore_secret")
         )
 
     # Create several industries if they don't already exist
