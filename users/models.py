@@ -18,7 +18,7 @@ class CustomUserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, first_name, last_name, password=None, role='MENTEE', **extra_fields):
+    def create_superuser(self, email, first_name, last_name, password=None, role='ADMIN', **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
         return self.create_user(email, first_name, last_name, password, role, **extra_fields)
@@ -32,6 +32,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     ROLE_CHOICES = (
         ('MENTEE', 'Mentee'),
         ('MENTOR', 'Mentor'),
+        ('ADMIN', 'Admin'),
     )
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='MENTEE')
 
