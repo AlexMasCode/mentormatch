@@ -44,9 +44,10 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     # ваш додаток
-    'users',
+    # 'users',
     'gunicorn',
     'drf_spectacular',
+    'users.apps.UsersConfig',
     'rest_framework_simplejwt.token_blacklist',
 ]
 
@@ -108,7 +109,7 @@ DATABASES = {
         'NAME': 'auth_service_db',
         'USER': 'postgres',
         'PASSWORD': 'mypassword',
-        'HOST': 'auth_db',
+        'HOST': 'auth-db',
         'PORT': '5432',
     }
 }

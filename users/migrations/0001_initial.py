@@ -22,6 +22,7 @@ class Migration(migrations.Migration):
                 ('first_name', models.CharField(max_length=255)),
                 ('last_name', models.CharField(max_length=255)),
                 ('email', models.EmailField(max_length=254, unique=True)),
+                ('role', models.CharField(choices=[('MENTEE', 'Mentee'), ('MENTOR', 'Mentor')], default='MENTEE', max_length=10)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
                 ('is_active', models.BooleanField(default=True)),
