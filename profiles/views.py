@@ -198,3 +198,156 @@ class CatalogFieldList(generics.ListAPIView):
     queryset = CatalogField.objects.all()
     serializer_class = CatalogFieldSerializer
     permission_classes = [IsAuthenticated]
+
+
+@extend_schema_view(
+    get=extend_schema(
+        summary="Admin: Retrieve Company",
+        description="Retrieve a company by ID. Only accessible to admins.",
+        responses={
+            200: CompanySerializer,
+            403: OpenApiResponse(description="Forbidden - Admin access required"),
+            404: OpenApiResponse(description="Not Found"),
+        },
+    ),
+    put=extend_schema(
+        summary="Admin: Update Company",
+        description="Update a company by ID. Only accessible to admins.",
+        request=CompanySerializer,
+        responses={
+            200: CompanySerializer,
+            400: OpenApiResponse(description="Bad Request"),
+            403: OpenApiResponse(description="Forbidden - Admin access required"),
+            404: OpenApiResponse(description="Not Found"),
+        },
+    ),
+    patch=extend_schema(
+        summary="Admin: Partially Update Company",
+        description="Partially update a company by ID. Only accessible to admins.",
+        request=CompanySerializer,
+        responses={
+            200: CompanySerializer,
+            400: OpenApiResponse(description="Bad Request"),
+            403: OpenApiResponse(description="Forbidden - Admin access required"),
+            404: OpenApiResponse(description="Not Found"),
+        },
+    ),
+    delete=extend_schema(
+        summary="Admin: Delete Company",
+        description="Delete a company by ID. Only accessible to admins.",
+        responses={
+            204: OpenApiResponse(description="Deleted successfully"),
+            403: OpenApiResponse(description="Forbidden - Admin access required"),
+            404: OpenApiResponse(description="Not Found"),
+        },
+    ),
+)
+class CompanyDetail(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Admin-only endpoint to retrieve, update, or delete a company.
+    """
+    queryset = Company.objects.all()
+    serializer_class = CompanySerializer
+    permission_classes = [IsAdminUser]
+
+
+@extend_schema_view(
+    get=extend_schema(
+        summary="Admin: Retrieve Catalog Industry",
+        description="Retrieve a catalog industry by ID. Only accessible to admins.",
+        responses={
+            200: CatalogIndustrySerializer,
+            403: OpenApiResponse(description="Forbidden - Admin access required"),
+            404: OpenApiResponse(description="Not Found"),
+        },
+    ),
+    put=extend_schema(
+        summary="Admin: Update Catalog Industry",
+        description="Update a catalog industry by ID. Only accessible to admins.",
+        request=CatalogIndustrySerializer,
+        responses={
+            200: CatalogIndustrySerializer,
+            400: OpenApiResponse(description="Bad Request"),
+            403: OpenApiResponse(description="Forbidden - Admin access required"),
+            404: OpenApiResponse(description="Not Found"),
+        },
+    ),
+    patch=extend_schema(
+        summary="Admin: Partially Update Catalog Industry",
+        description="Partially update a catalog industry by ID. Only accessible to admins.",
+        request=CatalogIndustrySerializer,
+        responses={
+            200: CatalogIndustrySerializer,
+            400: OpenApiResponse(description="Bad Request"),
+            403: OpenApiResponse(description="Forbidden - Admin access required"),
+            404: OpenApiResponse(description="Not Found"),
+        },
+    ),
+    delete=extend_schema(
+        summary="Admin: Delete Catalog Industry",
+        description="Delete a catalog industry by ID. Only accessible to admins.",
+        responses={
+            204: OpenApiResponse(description="Deleted successfully"),
+            403: OpenApiResponse(description="Forbidden - Admin access required"),
+            404: OpenApiResponse(description="Not Found"),
+        },
+    ),
+)
+class CatalogIndustryDetail(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Admin-only endpoint to retrieve, update, or delete a catalog industry.
+    """
+    queryset = CatalogIndustry.objects.all()
+    serializer_class = CatalogIndustrySerializer
+    permission_classes = [IsAdminUser]
+
+
+@extend_schema_view(
+    get=extend_schema(
+        summary="Admin: Retrieve Catalog Field",
+        description="Retrieve a catalog field by ID. Only accessible to admins.",
+        responses={
+            200: CatalogFieldSerializer,
+            403: OpenApiResponse(description="Forbidden - Admin access required"),
+            404: OpenApiResponse(description="Not Found"),
+        },
+    ),
+    put=extend_schema(
+        summary="Admin: Update Catalog Field",
+        description="Update a catalog field by ID. Only accessible to admins.",
+        request=CatalogFieldSerializer,
+        responses={
+            200: CatalogFieldSerializer,
+            400: OpenApiResponse(description="Bad Request"),
+            403: OpenApiResponse(description="Forbidden - Admin access required"),
+            404: OpenApiResponse(description="Not Found"),
+        },
+    ),
+    patch=extend_schema(
+        summary="Admin: Partially Update Catalog Field",
+        description="Partially update a catalog field by ID. Only accessible to admins.",
+        request=CatalogFieldSerializer,
+        responses={
+            200: CatalogFieldSerializer,
+            400: OpenApiResponse(description="Bad Request"),
+            403: OpenApiResponse(description="Forbidden - Admin access required"),
+            404: OpenApiResponse(description="Not Found"),
+        },
+    ),
+    delete=extend_schema(
+        summary="Admin: Delete Catalog Field",
+        description="Delete a catalog field by ID. Only accessible to admins.",
+        responses={
+            204: OpenApiResponse(description="Deleted successfully"),
+            403: OpenApiResponse(description="Forbidden - Admin access required"),
+            404: OpenApiResponse(description="Not Found"),
+        },
+    ),
+)
+class CatalogFieldDetail(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Admin-only endpoint to retrieve, update, or delete a catalog field.
+    """
+    queryset = CatalogField.objects.all()
+    serializer_class = CatalogFieldSerializer
+    permission_classes = [IsAdminUser]
