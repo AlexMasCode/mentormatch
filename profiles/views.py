@@ -5,19 +5,22 @@ from drf_spectacular.utils import (
     extend_schema_view,
     OpenApiResponse,
 )
+from rest_framework.generics import ListAPIView
+from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
+
 from .models import MentorProfile, MenteeProfile, Company, CatalogIndustry, CatalogField
 from .serializers import (
     MentorProfileSerializer, MenteeProfileSerializer,
     CompanySerializer, CatalogIndustrySerializer, CatalogFieldSerializer
 )
-from .permissions import IsOwnerOrAdmin, IsMentor, IsMentee
-from rest_framework.permissions import AllowAny
+from .permissions import IsOwnerOrAdmin
+
 
 # MentorProfile detail view: Retrieve and update a mentor profile
 @extend_schema_view(
     get=extend_schema(
         summary="Retrieve Mentor Profile",
-        description="Retrieve a mentor profile by ID. Only the profile owner or an admin can access this endpoint.",
+        description="Retrieve a mentor profile by ID. Available to all authenticated users.",
         responses={
             200: MentorProfileSerializer,
             400: OpenApiResponse(description="Bad Request"),
@@ -28,7 +31,7 @@ from rest_framework.permissions import AllowAny
     ),
     put=extend_schema(
         summary="Update Mentor Profile",
-        description="Update a mentor profile by ID. All required fields must be provided in the request body.",
+        description="Update a mentor profile by ID. Only the profile owner or an admin can perform this action.",
         request=MentorProfileSerializer,
         responses={
             200: MentorProfileSerializer,
@@ -40,7 +43,7 @@ from rest_framework.permissions import AllowAny
     ),
     patch=extend_schema(
         summary="Partially Update Mentor Profile",
-        description="Partially update a mentor profile by ID. Only the provided fields will be updated.",
+        description="Partially update a mentor profile by ID. Only the profile owner or an admin can perform this action.",
         request=MentorProfileSerializer,
         responses={
             200: MentorProfileSerializer,
@@ -50,18 +53,32 @@ from rest_framework.permissions import AllowAny
             404: OpenApiResponse(description="Not Found"),
         },
     ),
+    delete=extend_schema(
+        summary="Delete Mentor Profile",
+        description="Delete a mentor profile by ID. Only the profile owner or an admin can perform this action.",
+        responses={
+            204: OpenApiResponse(description="No Content"),
+            400: OpenApiResponse(description="Bad Request"),
+            401: OpenApiResponse(description="Unauthorized"),
+            403: OpenApiResponse(description="Forbidden"),
+            404: OpenApiResponse(description="Not Found"),
+        },
+    ),
 )
 class MentorProfileDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = MentorProfile.objects.all()
     serializer_class = MentorProfileSerializer
-    permission_classes = [IsOwnerOrAdmin, IsMentor]
 
+    def get_permissions(self):
+        if self.request.method in ['PUT', 'PATCH', 'DELETE']:
+            return [IsOwnerOrAdmin()]
+        return [IsAuthenticated()]
 
 # MenteeProfile detail view: Retrieve and update a mentee profile
 @extend_schema_view(
     get=extend_schema(
         summary="Retrieve Mentee Profile",
-        description="Retrieve a mentee profile by ID. Only the profile owner or an admin can access this endpoint.",
+        description="Retrieve a mentee profile by ID. Available to all authenticated users.",
         responses={
             200: MenteeProfileSerializer,
             400: OpenApiResponse(description="Bad Request"),
@@ -72,7 +89,7 @@ class MentorProfileDetail(generics.RetrieveUpdateDestroyAPIView):
     ),
     put=extend_schema(
         summary="Update Mentee Profile",
-        description="Update a mentee profile by ID. All required fields must be provided in the request body.",
+        description="Update a mentee profile by ID. Only the profile owner or an admin can perform this action.",
         request=MenteeProfileSerializer,
         responses={
             200: MenteeProfileSerializer,
@@ -84,7 +101,7 @@ class MentorProfileDetail(generics.RetrieveUpdateDestroyAPIView):
     ),
     patch=extend_schema(
         summary="Partially Update Mentee Profile",
-        description="Partially update a mentee profile by ID. Only the provided fields will be updated.",
+        description="Partially update a mentee profile by ID. Only the profile owner or an admin can perform this action.",
         request=MenteeProfileSerializer,
         responses={
             200: MenteeProfileSerializer,
@@ -94,17 +111,41 @@ class MentorProfileDetail(generics.RetrieveUpdateDestroyAPIView):
             404: OpenApiResponse(description="Not Found"),
         },
     ),
+    delete=extend_schema(
+        summary="Delete Mentee Profile",
+        description="Delete a mentee profile by ID. Only the profile owner or an admin can perform this action.",
+        responses={
+            204: OpenApiResponse(description="No Content"),
+            400: OpenApiResponse(description="Bad Request"),
+            401: OpenApiResponse(description="Unauthorized"),
+            403: OpenApiResponse(description="Forbidden"),
+            404: OpenApiResponse(description="Not Found"),
+        },
+    ),
 )
 class MenteeProfileDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = MenteeProfile.objects.all()
     serializer_class = MenteeProfileSerializer
-    permission_classes = [IsOwnerOrAdmin, IsMentee]
 
+    def get_permissions(self):
+        if self.request.method in ['PUT', 'PATCH', 'DELETE']:
+            return [IsOwnerOrAdmin()]
+        return [IsAuthenticated()]
 
-# MentorProfile list view: List all mentor profiles with filtering and ordering
+# MenteeProfile list view for admin: List all mentee profiles (admin-only)
+class MenteeProfileListAdmin(ListAPIView):
+    """
+    Admin endpoint for viewing all mentee profiles.
+    Available only to users with admin rights.
+    """
+    queryset = MenteeProfile.objects.all()
+    serializer_class = MenteeProfileSerializer
+    permission_classes = [IsAdminUser]
+
+# MentorProfile list view: List all mentor profiles with filtering and ordering, available to authenticated users
 @extend_schema(
     summary="List All Mentor Profiles",
-    description="List all mentor profiles with optional filtering by skills, company, experience, etc.",
+    description="List all mentor profiles with optional filtering by skills, company, experience, etc. Accessible to authenticated users.",
     responses={
         200: MentorProfileSerializer(many=True),
         400: OpenApiResponse(description="Bad Request"),
@@ -116,12 +157,12 @@ class MentorProfileList(generics.ListAPIView):
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['bio', 'company__name']
     ordering_fields = ['experience_years', 'average_rating']
+    permission_classes = [IsAuthenticated]
 
-
-# Company list view: List all companies (public access)
+# Company list view: List all companies (accessible to authenticated users)
 @extend_schema(
     summary="List All Companies",
-    description="Retrieve a list of all companies. This endpoint is public.",
+    description="Retrieve a list of all companies. Accessible to authenticated users.",
     responses={
         200: CompanySerializer(many=True),
         400: OpenApiResponse(description="Bad Request"),
@@ -130,10 +171,8 @@ class MentorProfileList(generics.ListAPIView):
 class CompanyList(generics.ListAPIView):
     queryset = Company.objects.all()
     serializer_class = CompanySerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
-
-# CatalogIndustry list view: List all catalog industries (public access)
 @extend_schema(
     summary="List All Catalog Industries",
     description="Retrieve a list of all catalog industries. This endpoint is public.",
@@ -145,10 +184,8 @@ class CompanyList(generics.ListAPIView):
 class CatalogIndustryList(generics.ListAPIView):
     queryset = CatalogIndustry.objects.all()
     serializer_class = CatalogIndustrySerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
-
-# CatalogField list view: List all catalog fields (public access)
 @extend_schema(
     summary="List All Catalog Fields",
     description="Retrieve a list of all catalog fields. This endpoint is public.",
@@ -160,18 +197,4 @@ class CatalogIndustryList(generics.ListAPIView):
 class CatalogFieldList(generics.ListAPIView):
     queryset = CatalogField.objects.all()
     serializer_class = CatalogFieldSerializer
-    permission_classes = [AllowAny]
-
-
-# URL patterns for the profile service endpoints
-urlpatterns = [
-    # Endpoints for profile views
-    path('mentors/<int:pk>/', MentorProfileDetail.as_view(), name='mentor-profile-detail'),
-    path('mentees/<int:pk>/', MenteeProfileDetail.as_view(), name='mentee-profile-detail'),
-    path('mentors/', MentorProfileList.as_view(), name='mentor-profile-list'),
-
-    # Endpoints for reference data (catalogs)
-    path('companies/', CompanyList.as_view(), name='company-list'),
-    path('catalog/industries/', CatalogIndustryList.as_view(), name='catalog-industries-list'),
-    path('catalog/fields/', CatalogFieldList.as_view(), name='catalog-fields-list'),
-]
+    permission_classes = [IsAuthenticated]
