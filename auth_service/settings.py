@@ -26,6 +26,8 @@ JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY", "django-insecure-whf8ix09n#=0f
 SECRET_KEY = JWT_SECRET_KEY
 
 
+PROFILE_SERVICE_URL = os.environ.get("PROFILE_SERVICE_URL", "http://localhost:8000/api/companies/validate-access/")
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 

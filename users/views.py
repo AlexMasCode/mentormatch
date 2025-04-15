@@ -6,7 +6,10 @@ from django.contrib.auth import get_user_model, authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 from drf_spectacular.utils import extend_schema, OpenApiResponse
+from django.conf import settings
+import requests
 
+from .models import CustomUser
 from .serializers import RegisterSerializer, CustomTokenObtainPairSerializer
 
 User = get_user_model()
@@ -35,9 +38,45 @@ class CustomTokenObtainPairView(TokenObtainPairView):
         400: OpenApiResponse(description="Bad Request - Invalid data")
     },
 )
-class RegisterView(generics.CreateAPIView):
-    serializer_class = RegisterSerializer
-    permission_classes = [AllowAny]
+class RegisterView(APIView):
+    def post(self, request):
+        first_name = request.data.get("first_name")
+        last_name = request.data.get("last_name")
+        email = request.data.get("email")
+        password = request.data.get("password")
+        role = request.data.get("role", "MENTEE")
+
+        if role == "MENTOR":
+            company_id = request.data.get("company_id")
+            access_key = request.data.get("access_key")
+            if not company_id or not access_key:
+                return Response({"detail": "For mentors, company_id and access_key are required."},
+                                status=status.HTTP_400_BAD_REQUEST)
+            # Call Profile Service to check the access key
+            profile_url = settings.PROFILE_SERVICE_URL  # "http://profile-service:8000/api/companies/validate-access/"
+            payload = {"company_id": company_id, "access_key": access_key}
+            try:
+                resp = requests.post(profile_url, json=payload, timeout=5)
+                if resp.status_code != 200 or not resp.json().get("valid"):
+                    return Response({"detail": "Invalid company access key."}, status=status.HTTP_400_BAD_REQUEST)
+            except requests.RequestException:
+                return Response({"detail": "Unable to validate company access key."},
+                                status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+        # If all checks have passed, we proceed to creating the user
+        try:
+            user = CustomUser.objects.create_user(
+                email=email,
+                first_name=first_name,
+                last_name=last_name,
+                password=password,
+                role=role
+            )
+        except Exception as e:
+            return Response({"detail": f"Error during registration: {str(e)}"},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return Response({"detail": "User registered successfully."}, status=status.HTTP_201_CREATED)
 
 
 # Logout: Blacklist the refresh token to log out the user
