@@ -51,7 +51,7 @@ class Company(models.Model):
 
 
 class MentorProfile(models.Model):
-    user_id = models.IntegerField(unique=True)  # Связь с Auth Service (claim sub)
+    user_id = models.IntegerField(unique=True)
     company = models.ForeignKey(Company, on_delete=models.SET_NULL, null=True, blank=True)
     bio = models.TextField(blank=True)
     experience_years = models.PositiveIntegerField(default=0)

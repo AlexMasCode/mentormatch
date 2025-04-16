@@ -1,48 +1,51 @@
 # profile_service/kafka_consumer.py
-import os
-import json
+import os, sys, json, django
 from kafka import KafkaConsumer
 
-# Django setup – for accessing models
-import django
-import sys
-
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "profile_service.settings")
 django.setup()
 
-from profiles.models import MentorProfile, MenteeProfile
+from profiles.models import MentorProfile, MenteeProfile, Company
 
-# Read broker and topic settings from environment variables
-KAFKA_BROKER = os.environ.get("KAFKA_BROKER", "localhost:9092")
-TOPIC_NEW_USER = os.environ.get("KAFKA_TOPIC_NEW_USER", "new_user_topic")
+BROKER = os.getenv("KAFKA_BROKER", "localhost:9092")
+TOPIC  = os.getenv("KAFKA_TOPIC_NEW_USER", "new_user_topic")
 
 consumer = KafkaConsumer(
-    TOPIC_NEW_USER,
-    bootstrap_servers=[KAFKA_BROKER],
+    TOPIC,
+    bootstrap_servers=[BROKER],
     auto_offset_reset='earliest',
     enable_auto_commit=True,
     group_id='profile_service_group',
-    value_deserializer=lambda x: json.loads(x.decode("utf-8"))
+    value_deserializer=lambda b: json.loads(b.decode())
 )
 
-print("Profile Service Kafka consumer started. Listening for new user events...")
+print("Consumer ready")
 
-for message in consumer:
-    event = message.value
-    user_id = event.get("user_id")
-    role = event.get("role")
-    print(f"Received event for user_id: {user_id} with role: {role}")
+for msg in consumer:
+    data = msg.value
+    user_id = data.get("user_id")
+    role = data.get("role")
+    company_id = data.get("company_id")
+    print("EVENT:", data)
 
-    # Check if the profile already exists, and create it if not
     if role == "MENTOR":
-        if not MentorProfile.objects.filter(user_id=user_id).exists():
-            MentorProfile.objects.create(user_id=user_id, bio="", experience_years=0)
-            print(f"Created MentorProfile for user {user_id}")
+        company = None
+        if company_id:
+            try:
+                company = Company.objects.get(id=company_id)
+            except Company.DoesNotExist:
+                print("Company", company_id, "not found")
+
+        # if the profile already existed, but the company was not set yet, we will update it
+        mp, created = MentorProfile.objects.get_or_create(user_id=user_id,
+                                                          defaults={"company": company})
+        if not created and company and mp.company is None:
+            mp.company = company
+            mp.save(update_fields=["company"])
+            print("Updated MentorProfile", user_id, "company →", company_id)
+        elif created:
+            print("Created MentorProfile", user_id, "company →", company_id)
+
     elif role == "MENTEE":
-        if not MenteeProfile.objects.filter(user_id=user_id).exists():
-            MenteeProfile.objects.create(user_id=user_id)
-            print(f"Created MenteeProfile for user {user_id}")
-    else:
-        print(f"Unknown role {role} for user {user_id}")
+        MenteeProfile.objects.get_or_create(user_id=user_id)
