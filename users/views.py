@@ -9,6 +9,7 @@ from drf_spectacular.utils import extend_schema, OpenApiResponse
 from django.conf import settings
 import requests
 
+from .kafka_producer import publish_new_user_event
 from .models import CustomUser
 from .serializers import RegisterSerializer, CustomTokenObtainPairSerializer
 
@@ -75,6 +76,11 @@ class RegisterView(APIView):
         except Exception as e:
             return Response({"detail": f"Error during registration: {str(e)}"},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        if role == "MENTOR":
+            publish_new_user_event(user, company_id)
+        else:
+            publish_new_user_event(user)
 
         return Response({"detail": "User registered successfully."}, status=status.HTTP_201_CREATED)
 
