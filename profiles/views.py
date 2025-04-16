@@ -1,5 +1,6 @@
 from django.urls import path
 from rest_framework import generics, filters
+from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import (
     extend_schema,
     extend_schema_view,
@@ -8,6 +9,7 @@ from drf_spectacular.utils import (
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 
+from .filters import MentorProfileFilter, CompanyFilter
 from .models import MentorProfile, MenteeProfile, Company, CatalogIndustry, CatalogField
 from .serializers import (
     MentorProfileSerializer, MenteeProfileSerializer,
@@ -158,7 +160,8 @@ class MenteeProfileListAdmin(ListAPIView):
 class MentorProfileList(generics.ListAPIView):
     serializer_class = MentorProfileSerializer
     queryset = MentorProfile.objects.all()
-    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_class = MentorProfileFilter
     search_fields = ['bio', 'company__name']
     ordering_fields = ['experience_years', 'average_rating']
     permission_classes = [IsAuthenticated]
@@ -175,6 +178,10 @@ class MentorProfileList(generics.ListAPIView):
 class CompanyList(generics.ListAPIView):
     queryset = Company.objects.all()
     serializer_class = CompanySerializer
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_class = CompanyFilter
+    search_fields = ['name']
+    ordering_fields = ['name']
     permission_classes = [IsAuthenticated]
 
 @extend_schema(

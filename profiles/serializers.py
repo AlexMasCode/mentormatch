@@ -6,12 +6,6 @@ from .models import (
 )
 
 
-class CompanySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Company
-        fields = ['id', 'name', 'access_key_hash', 'description', 'industry', 'logo_url']
-
-
 class CatalogIndustrySerializer(serializers.ModelSerializer):
     class Meta:
         model = CatalogIndustry
@@ -33,49 +27,135 @@ class SkillSerializer(serializers.ModelSerializer):
         fields = ['id', 'name']
 
 
+class CompanySerializer(serializers.ModelSerializer):
+    industry = CatalogIndustrySerializer(read_only=True)
+    industry_id = serializers.IntegerField(write_only=True, required=False, allow_null=True)
+    specializations = CatalogFieldSerializer(many=True, read_only=True)
+    specializations_ids = serializers.ListField(
+        child=serializers.IntegerField(), write_only=True, required=False
+    )
+
+    class Meta:
+        model = Company
+        fields = [
+            'id', 'name', 'access_key_hash', 'description',
+            'industry', 'industry_id', 'logo_url',
+            'specializations', 'specializations_ids'
+        ]
+
+    def create(self, validated_data):
+        industry_id = validated_data.pop('industry_id', None)
+        specializations_ids = validated_data.pop('specializations_ids', [])
+        if industry_id:
+            from .models import CatalogIndustry
+            validated_data['industry'] = CatalogIndustry.objects.get(id=industry_id)
+        company = Company.objects.create(**validated_data)
+        if specializations_ids:
+            company.specializations.set(specializations_ids)
+        return company
+
+    def update(self, instance, validated_data):
+        industry_id = validated_data.pop('industry_id', None)
+        specializations_ids = validated_data.pop('specializations_ids', None)
+        if industry_id is not None:
+            from .models import CatalogIndustry
+            instance.industry = CatalogIndustry.objects.get(id=industry_id)
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        if specializations_ids is not None:
+            instance.specializations.set(specializations_ids)
+        return instance
+
+
 class MentorProfileSerializer(serializers.ModelSerializer):
     skills = SkillSerializer(many=True, read_only=True)
     company = CompanySerializer(read_only=True)
     company_id = serializers.IntegerField(write_only=True, required=False, allow_null=True)
+    specializations = CatalogFieldSerializer(many=True, read_only=True)
+    specializations_ids = serializers.ListField(
+        child=serializers.IntegerField(), write_only=True, required=False
+    )
 
     class Meta:
         model = MentorProfile
         fields = [
             'id', 'user_id', 'company', 'company_id',
-            'bio', 'experience_years', 'average_rating', 'skills',
+            'bio', 'experience_years', 'average_rating',
+            'skills', 'specializations', 'specializations_ids',
             'created_at', 'updated_at'
         ]
         read_only_fields = ['user_id', 'average_rating', 'created_at', 'updated_at']
 
+    def create(self, validated_data):
+        company_id = validated_data.pop('company_id', None)
+        specializations_ids = validated_data.pop('specializations_ids', [])
+        if company_id:
+            from .models import Company
+            validated_data['company'] = Company.objects.get(id=company_id)
+        mentor = MentorProfile.objects.create(**validated_data)
+        if specializations_ids:
+            mentor.specializations.set(specializations_ids)
+        return mentor
+
+    def update(self, instance, validated_data):
+        company_id = validated_data.pop('company_id', None)
+        specializations_ids = validated_data.pop('specializations_ids', None)
+        if company_id is not None:
+            from .models import Company
+            instance.company = Company.objects.get(id=company_id)
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        if specializations_ids is not None:
+            instance.specializations.set(specializations_ids)
+        return instance
+
     def to_representation(self, instance):
-        # Return the default representation first
         representation = super().to_representation(instance)
         request = self.context.get('request')
         if request:
-            # If the request user is not the owner and not an admin, return limited public fields only
             if (hasattr(request.user, 'id') and request.user.id != instance.user_id) and not getattr(request.user, 'is_staff', False):
-                # Example: hide sensitive fields for non-owners
                 representation.pop('bio', None)
-                # You can hide other fields here if needed
         return representation
 
 
 class MenteeProfileSerializer(serializers.ModelSerializer):
     skills = SkillSerializer(many=True, read_only=True)
+    desired_fields = CatalogFieldSerializer(many=True, read_only=True)
+    desired_fields_ids = serializers.ListField(
+        child=serializers.IntegerField(), write_only=True, required=False
+    )
 
     class Meta:
         model = MenteeProfile
         fields = [
             'id', 'user_id', 'development_goals', 'skills',
+            'desired_fields', 'desired_fields_ids',
             'created_at', 'updated_at'
         ]
         read_only_fields = ['user_id', 'created_at', 'updated_at']
+
+    def create(self, validated_data):
+        desired_fields_ids = validated_data.pop('desired_fields_ids', [])
+        mentee = MenteeProfile.objects.create(**validated_data)
+        if desired_fields_ids:
+            mentee.desired_fields.set(desired_fields_ids)
+        return mentee
+
+    def update(self, instance, validated_data):
+        desired_fields_ids = validated_data.pop('desired_fields_ids', None)
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        if desired_fields_ids is not None:
+            instance.desired_fields.set(desired_fields_ids)
+        return instance
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         request = self.context.get('request')
         if request:
-            # If the request user is not the owner and not an admin, hide certain fields
             if (hasattr(request.user, 'id') and request.user.id != instance.user_id) and not getattr(request.user, 'is_staff', False):
                 representation.pop('development_goals', None)
         return representation
