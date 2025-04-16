@@ -9,13 +9,13 @@ from drf_spectacular.utils import (
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 
-from .filters import MentorProfileFilter, CompanyFilter
+from .filters import MentorProfileFilter, CompanyFilter, MenteeProfileFilter
 from .models import MentorProfile, MenteeProfile, Company, CatalogIndustry, CatalogField
 from .serializers import (
     MentorProfileSerializer, MenteeProfileSerializer,
     CompanySerializer, CatalogIndustrySerializer, CatalogFieldSerializer
 )
-from .permissions import IsOwnerOrAdmin
+from .permissions import IsOwnerOrAdmin, IsMentorOrAdmin
 from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth.hashers import check_password
@@ -147,6 +147,22 @@ class MenteeProfileListAdmin(ListAPIView):
     queryset = MenteeProfile.objects.all()
     serializer_class = MenteeProfileSerializer
     permission_classes = [IsAdminUser]
+
+@extend_schema(
+    summary="List All Mentee Profiles",
+    description="List all mentee profiles with optional filtering by skills, desired_fields, and development_goals. Accessible to mentors and admins.",
+    responses={200: MenteeProfileSerializer(many=True), 400: OpenApiResponse(description="Bad Request")},
+)
+class MenteeProfileSearch(ListAPIView):
+    """
+    Endpoint for mentors or admins to search mentee profiles.
+    """
+    queryset = MenteeProfile.objects.all()
+    serializer_class = MenteeProfileSerializer
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filterset_class = MenteeProfileFilter
+    search_fields = ['development_goals']
+    permission_classes = [IsMentorOrAdmin]
 
 # MentorProfile list view: List all mentor profiles with filtering and ordering, available to authenticated users
 @extend_schema(

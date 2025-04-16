@@ -22,3 +22,12 @@ class IsMentee(permissions.BasePermission):
     """
     def has_permission(self, request, view):
         return request.user and getattr(request.user, 'role', None) == 'MENTEE'
+
+
+class IsMentorOrAdmin(permissions.BasePermission):
+    """
+    Allows access only to users with role 'MENTOR' or admins (is_staff).
+    """
+    def has_permission(self, request, view):
+        user = request.user
+        return bool(user and (getattr(user, 'role', None) == 'MENTOR' or user.is_staff))

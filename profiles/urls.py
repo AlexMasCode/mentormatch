@@ -2,7 +2,8 @@ from django.urls import path
 from .views import (
     MentorProfileDetail, MenteeProfileDetail, MentorProfileList,
     CompanyList, CatalogIndustryList, CatalogFieldList, MenteeProfileListAdmin,
-    CompanyDetail, CatalogIndustryDetail, CatalogFieldDetail, CompanyAccessValidation
+    CompanyDetail, CatalogIndustryDetail, CatalogFieldDetail, CompanyAccessValidation,
+    MenteeProfileSearch
 )
 
 urlpatterns = [
@@ -11,6 +12,8 @@ urlpatterns = [
     path('mentees/<int:pk>/', MenteeProfileDetail.as_view(), name='mentee-profile-detail'),  # Get a specific mentee profile
     path('mentors/', MentorProfileList.as_view(), name='mentor-profile-list'),  # List all mentor profiles
     path('admin/mentees/', MenteeProfileListAdmin.as_view(), name='mentee-list-admin'),
+
+    path('mentees/search/', MenteeProfileSearch.as_view(), name='mentee-search'),
 
     # Endpoints for reference data (catalogs)
     path('companies/', CompanyList.as_view(), name='company-list'),  # List all companies

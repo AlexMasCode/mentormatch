@@ -1,6 +1,6 @@
 # profiles/filters.py
 import django_filters
-from .models import MentorProfile, Company
+from .models import MentorProfile, Company, MenteeProfile
 
 
 class MentorProfileFilter(django_filters.FilterSet):
@@ -71,4 +71,36 @@ class CompanyFilter(django_filters.FilterSet):
             return queryset
         if spec_ids:
             queryset = queryset.filter(specializations__id__in=spec_ids).distinct()
+        return queryset
+
+
+class MenteeProfileFilter(django_filters.FilterSet):
+    skills = django_filters.CharFilter(
+        method='filter_skills',
+        label='Skills (IDs comma-separated)'
+    )
+    desired_fields = django_filters.CharFilter(
+        method='filter_desired_fields',
+        label='Desired Fields (IDs comma-separated)'
+    )
+    # Text search in development_goals
+    development_goals = django_filters.CharFilter(
+        field_name='development_goals', lookup_expr='icontains'
+    )
+
+    class Meta:
+        model = MenteeProfile
+        fields = []
+
+    def filter_skills(self, queryset, name, value):
+        # expect comma-separated skill IDs
+        skill_ids = [int(x) for x in value.split(',') if x.strip().isdigit()]
+        if skill_ids:
+            queryset = queryset.filter(skills__id__in=skill_ids).distinct()
+        return queryset
+
+    def filter_desired_fields(self, queryset, name, value):
+        field_ids = [int(x) for x in value.split(',') if x.strip().isdigit()]
+        if field_ids:
+            queryset = queryset.filter(desired_fields__id__in=field_ids).distinct()
         return queryset
