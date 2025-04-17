@@ -66,18 +66,27 @@ class MentorProfile(models.Model):
         return f"MentorProfile (user_id={self.user_id})"
 
 class MentorSkill(models.Model):
-    mentor = models.ForeignKey(MentorProfile, on_delete=models.CASCADE)
-    skill = models.ForeignKey(Skill, on_delete=models.CASCADE)
+    mentor = models.ForeignKey(MentorProfile, on_delete=models.CASCADE, db_index=True,)
+    skill = models.ForeignKey(Skill, on_delete=models.CASCADE, db_index=True,)
+
 
     class Meta:
         unique_together = ('mentor', 'skill')
+        indexes = [
+            models.Index(fields=['mentor']),
+            models.Index(fields=['skill']),
+        ]
 
 class MentorSpecialization(models.Model):
-    mentor = models.ForeignKey(MentorProfile, on_delete=models.CASCADE)
-    field = models.ForeignKey(CatalogField, on_delete=models.CASCADE)
+    mentor = models.ForeignKey(MentorProfile, on_delete=models.CASCADE, db_index=True,)
+    field = models.ForeignKey(CatalogField, on_delete=models.CASCADE, db_index=True,)
 
     class Meta:
         unique_together = ('mentor', 'field')
+        indexes = [
+            models.Index(fields=['mentor']),
+            models.Index(fields=['field']),
+        ]
 
 class MenteeProfile(models.Model):
     user_id = models.IntegerField(unique=True)
@@ -91,15 +100,23 @@ class MenteeProfile(models.Model):
         return f"MenteeProfile (user_id={self.user_id})"
 
 class MenteeSkill(models.Model):
-    mentee = models.ForeignKey(MenteeProfile, on_delete=models.CASCADE)
-    skill = models.ForeignKey(Skill, on_delete=models.CASCADE)
+    mentee = models.ForeignKey(MenteeProfile, on_delete=models.CASCADE, db_index=True,)
+    skill = models.ForeignKey(Skill, on_delete=models.CASCADE, db_index=True,)
 
     class Meta:
         unique_together = ('mentee', 'skill')
+        indexes = [
+            models.Index(fields=['mentee']),
+            models.Index(fields=['skill']),
+        ]
 
 class MenteeDesiredField(models.Model):
-    mentee = models.ForeignKey(MenteeProfile, on_delete=models.CASCADE)
-    field = models.ForeignKey(CatalogField, on_delete=models.CASCADE)
+    mentee = models.ForeignKey(MenteeProfile, on_delete=models.CASCADE, db_index=True,)
+    field = models.ForeignKey(CatalogField, on_delete=models.CASCADE, db_index=True,)
 
     class Meta:
         unique_together = ('mentee', 'field')
+        indexes = [
+            models.Index(fields=['mentee']),
+            models.Index(fields=['field']),
+        ]
