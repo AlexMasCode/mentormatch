@@ -144,9 +144,11 @@ class MenteeProfileListAdmin(ListAPIView):
     Admin endpoint for viewing all mentee profiles.
     Available only to users with admin rights.
     """
-    queryset = MenteeProfile.objects.all()
     serializer_class = MenteeProfileSerializer
     permission_classes = [IsAdminUser]
+
+    def get_queryset(self):
+        return MenteeProfile.objects.prefetch_related('skills', 'desired_fields')
 
 @extend_schema(
     summary="List All Mentee Profiles",
@@ -157,12 +159,14 @@ class MenteeProfileSearch(ListAPIView):
     """
     Endpoint for mentors or admins to search mentee profiles.
     """
-    queryset = MenteeProfile.objects.all()
     serializer_class = MenteeProfileSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_class = MenteeProfileFilter
     search_fields = ['development_goals']
     permission_classes = [IsMentorOrAdmin]
+
+    def get_queryset(self):
+        return MenteeProfile.objects.prefetch_related('skills', 'desired_fields')
 
 # MentorProfile list view: List all mentor profiles with filtering and ordering, available to authenticated users
 @extend_schema(
@@ -175,12 +179,16 @@ class MenteeProfileSearch(ListAPIView):
 )
 class MentorProfileList(generics.ListAPIView):
     serializer_class = MentorProfileSerializer
-    queryset = MentorProfile.objects.all()
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_class = MentorProfileFilter
     search_fields = ['bio', 'company__name']
     ordering_fields = ['experience_years', 'average_rating']
     permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        # Select related company and prefetch skills and specializations to avoid N+1
+        return MentorProfile.objects.select_related('company') \
+            .prefetch_related('skills', 'specializations')
 
 # Company list view: List all companies (accessible to authenticated users)
 @extend_schema(
@@ -192,13 +200,16 @@ class MentorProfileList(generics.ListAPIView):
     },
 )
 class CompanyList(generics.ListAPIView):
-    queryset = Company.objects.all()
     serializer_class = CompanySerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_class = CompanyFilter
     search_fields = ['name']
     ordering_fields = ['name']
     permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Company.objects.select_related('industry') \
+            .prefetch_related('specializations')
 
 @extend_schema(
     summary="List All Catalog Industries",
