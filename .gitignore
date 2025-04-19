@@ -1,0 +1,102 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Django stuff:
+*.log
+*.pot
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+local_settings.py
+db.sqlite3
+media/
+staticfiles/
+
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+
+# Distribution / packaging
+*.egg-info/
+*.egg
+dist/
+build/
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+.coverage
+.tox/
+nosetests.xml
+coverage.xml
+*,cover
+.hypothesis/
+pytest_cache/
+
+# Translations
+*.mo
+
+# IDEs and editors
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# VS Code settings
+.vscode/
+
+# Mac
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# PyCharm
+*.iml
+.idea/
+
+# Environment variables
+.env
+.env.*
+
+# Docker
+*.env
+docker-compose.override.yml
+
+# Celery beat schedule file
+celerybeat-schedule
+
+# Sphinx documentation
+docs/_build/
+
+# Coverage directory
+htmlcov/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Static collected files
+staticfiles/
+
+# Logs
+logs/
+*.log
+
+# System files
+*.swp
+*~
+
+# Optional: add any secret key or credentials files here
+# e.g., secret_key.txt
+
