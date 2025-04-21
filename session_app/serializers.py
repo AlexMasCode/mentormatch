@@ -13,30 +13,6 @@ class AvailabilitySerializer(serializers.ModelSerializer):
         fields = ['id', 'mentor_id', 'start_ts', 'end_ts', 'is_recurring']
         read_only_fields = ['id', 'mentor_id']
 
-    # def validate_mentor_id(self, value):
-    #
-    #     url = f"{settings.PROFILE_SERVICE_URL}/api/mentors/{value}/"
-    #     headers = {}
-    #     request = self.context.get('request')
-    #     if request:
-    #         auth_header = request.headers.get('Authorization')
-    #         if auth_header:
-    #             headers['Authorization'] = auth_header
-    #     logger.debug(f"[Availability] Validating mentor_id {value}: GET {url} with headers {headers}")
-    #     try:
-    #         resp = requests.get(url, headers=headers, timeout=5)
-    #     except requests.RequestException as e:
-    #         logger.error(f"[Availability] Error contacting Profile Service: {e}")
-    #         raise serializers.ValidationError("Failed to contact Profile Service.", code='service_error')
-    #     logger.debug(f"[Availability] Profile Service response: {resp.status_code} - {resp.text}")
-    #     if resp.status_code == 404:
-    #         raise serializers.ValidationError(f"Mentor with id={value} not found.", code='user_not_found')
-    #     if resp.status_code == 401:
-    #         raise serializers.ValidationError("Unauthorized to access Profile Service.", code='service_unauthorized')
-    #     if resp.status_code != 200:
-    #         raise serializers.ValidationError(f"Profile Service returned {resp.status_code}.", code='service_error')
-    #     return value
-
     def validate(self, data):
         start_ts = data.get('start_ts', getattr(self.instance, 'start_ts', None))
         end_ts = data.get('end_ts',   getattr(self.instance, 'end_ts',   None))
@@ -50,7 +26,7 @@ class SessionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Session
         fields = ['id', 'mentor_id', 'mentee_id', 'start_ts', 'end_ts', 'status', 'created_at', 'updated_at']
-        read_only_fields = ['status', 'created_at', 'updated_at', 'mentee_id']
+        read_only_fields = ['created_at', 'updated_at', 'mentee_id']
 
     def _verify_profile(self, value, role):
         url = f"{settings.PROFILE_SERVICE_URL}/api/{role}s/{value}/"

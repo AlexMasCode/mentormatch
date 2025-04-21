@@ -39,17 +39,32 @@ class IsOwnerAvailability(permissions.BasePermission):
         user_id = resp.json().get('user_id')
         return user_id == request.user.id
 
+
 class IsOwnerSession(permissions.BasePermission):
-    """
-    Allows mentee to cancel a session and mentor to confirm or decline.
-    Staff users can do anything.
-    """
     def has_object_permission(self, request, view, obj):
-        # Mentee can cancel (DELETE or PATCH to "cancelled")
-        if request.user.role == 'MENTEE' and obj.mentee_id == request.user.id:
+        if getattr(request.user, 'is_staff', False):
             return True
-        # Mentor can confirm or decline
-        if request.user.role == 'MENTOR' and obj.mentor_id == request.user.id:
-            return True
-        # Staff has full access
-        return getattr(request.user, 'is_staff', False)
+
+        if request.user.role == 'MENTEE':
+            resp = requests.get(
+                f"{settings.PROFILE_SERVICE_URL}/api/mentees/me/",
+                headers={'Authorization': request.headers.get('Authorization')},
+                timeout=5
+            )
+            resp.raise_for_status()
+            profile_id = resp.json().get('id')
+            return obj.mentee_id == profile_id
+
+        if request.user.role == 'MENTOR':
+            resp = requests.get(
+                f"{settings.PROFILE_SERVICE_URL}/api/mentors/?user_id={request.user.id}",
+                headers={'Authorization': request.headers.get('Authorization')},
+                timeout=5
+            )
+            resp.raise_for_status()
+            results = resp.json().get('results', [])
+            mentor_profile_id = results[0]['id'] if results else None
+            return obj.mentor_id == mentor_profile_id
+
+        return False
+

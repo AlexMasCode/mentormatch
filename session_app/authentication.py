@@ -15,6 +15,7 @@ class JWTAuthentication(BaseJWT):
         role = validated_token.get("role")
         first_name = validated_token.get("first_name", "")
         last_name = validated_token.get("last_name", "")
+        is_staff = validated_token.get("is_staff", False)
 
         user = SimpleNamespace(
             id=user_id,
@@ -22,5 +23,6 @@ class JWTAuthentication(BaseJWT):
             first_name=first_name,
             last_name=last_name,
             is_authenticated=True,
+            is_staff=is_staff,
         )
         return user

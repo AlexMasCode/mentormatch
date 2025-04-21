@@ -163,12 +163,11 @@ class SessionViewSet(viewsets.ModelViewSet):
         headers = {}
         if auth := self.request.headers.get("Authorization"):
             headers["Authorization"] = auth
+
         resp = requests.get(url, headers=headers, timeout=5)
         resp.raise_for_status()
-        for profile in resp.json().get('results', []):
-            if profile.get('user_id') == user.id:
-                return profile.get('id')
-        return None
+        data = resp.json()
+        return data.get("id")
 
     def get_queryset(self):
         qs = Session.objects.all()
