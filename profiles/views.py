@@ -150,6 +150,17 @@ class MenteeProfileListAdmin(ListAPIView):
     def get_queryset(self):
         return MenteeProfile.objects.prefetch_related('skills', 'desired_fields')
 
+
+class MenteeProfileMe(RetrieveAPIView):
+    """
+    Endpoint for a mentee to fetch their own profile.
+    """
+    serializer_class = MenteeProfileSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return get_object_or_404(MenteeProfile, user_id=self.request.user.id)
+
 @extend_schema(
     summary="List All Mentee Profiles",
     description="List all mentee profiles with optional filtering by skills, desired_fields, and development_goals. Accessible to mentors and admins.",

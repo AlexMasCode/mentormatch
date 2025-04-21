@@ -15,6 +15,8 @@ urlpatterns = [
 
     path('mentees/search/', MenteeProfileSearch.as_view(), name='mentee-search'),
 
+
+    path('mentees/me/', MenteeProfileMe.as_view(), name='mentee-profile-me'),
     # Endpoints for reference data (catalogs)
     path('companies/', CompanyList.as_view(), name='company-list'),  # List all companies
     path('catalog/industries/', CatalogIndustryList.as_view(), name='catalog-industries-list'),  # List all industries
