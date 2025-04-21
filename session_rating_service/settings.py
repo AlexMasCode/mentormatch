@@ -46,6 +46,8 @@ INSTALLED_APPS = [
     "requests",
 
     "session_app",
+    "ratings",
+
 ]
 
 MIDDLEWARE = [
