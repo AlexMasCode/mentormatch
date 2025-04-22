@@ -28,6 +28,7 @@ ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "*").split(",")
 AUTH_SERVICE_URL    = os.getenv("AUTH_SERVICE_URL", "http://auth-service:8001")
 PROFILE_SERVICE_URL = os.getenv("PROFILE_SERVICE_URL", "http://profile-service:8000")
 KAFKA_BROKER        = os.getenv("KAFKA_BROKER", "kafka:9092")
+KAFKA_TOPIC_RATING_UPDATE = os.environ.get('KAFKA_TOPIC_RATING_UPDATE', 'mentor_rating_updated')
 
 # Application definition
 
