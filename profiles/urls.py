@@ -3,7 +3,7 @@ from .views import (
     MentorProfileDetail, MenteeProfileDetail, MentorProfileList,
     CompanyList, CatalogIndustryList, CatalogFieldList, MenteeProfileListAdmin,
     CompanyDetail, CatalogIndustryDetail, CatalogFieldDetail, CompanyAccessValidation,
-    MenteeProfileSearch
+    MenteeProfileSearch, MenteeProfileMe
 )
 
 urlpatterns = [

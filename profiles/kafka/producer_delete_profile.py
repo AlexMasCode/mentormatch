@@ -1,4 +1,4 @@
-# profiles/kafka_producer.py
+# profiles/producer_delete_profile.py
 import os
 import json
 from kafka import KafkaProducer

@@ -6,7 +6,7 @@ from drf_spectacular.utils import (
     extend_schema_view,
     OpenApiResponse,
 )
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import ListAPIView, RetrieveAPIView, get_object_or_404
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 
 from .filters import MentorProfileFilter, CompanyFilter, MenteeProfileFilter
