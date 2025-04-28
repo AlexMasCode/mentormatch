@@ -54,7 +54,7 @@ class RegisterView(APIView):
                 return Response({"detail": "For mentors, company_id and access_key are required."},
                                 status=status.HTTP_400_BAD_REQUEST)
             # Call Profile Service to check the access key
-            profile_url = settings.PROFILE_SERVICE_URL  # "http://profile-service:8000/api/companies/validate-access/"
+            profile_url = settings.PROFILE_SERVICE_COMPANIES_VALIDATE_ACCESS_URL  # "http://profile-service:8000/api/companies/validate-access/"
             payload = {"company_id": company_id, "access_key": access_key}
             try:
                 resp = requests.post(profile_url, json=payload, timeout=5)
