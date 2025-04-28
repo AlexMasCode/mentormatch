@@ -21,7 +21,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-fallback-key")
+SECRET_KEY = os.getenv("SECRET_KEY")
+JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY")
+
 DEBUG = os.getenv("DEBUG", "False").lower() in ("1", "true")
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "*").split(",")
 
@@ -103,7 +105,7 @@ DB_NAME     = os.getenv("DB_NAME")
 DB_USER     = os.getenv("DB_USER")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
 DB_HOST     = os.getenv("DB_HOST")
-DB_PORT     = os.getenv("DB_PORT", "")
+DB_PORT     = os.getenv("DB_PORT")
 
 DATABASES = {
     "default": {
@@ -173,7 +175,7 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
 
     'ALGORITHM': 'HS256',
-    'SIGNING_KEY': os.getenv('SECRET_KEY'),
+    'SIGNING_KEY': JWT_SECRET_KEY,
     'AUTH_HEADER_TYPES': ('Bearer',),
 
 }
