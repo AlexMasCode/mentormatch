@@ -12,20 +12,21 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
+# from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
+# load_dotenv(BASE_DIR / '.env')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
-JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY", "django-insecure-whf8ix09n#=0fi)%(s1l5b6d0c7y&4c+4pkz0beecjq#@mxc%p")
+JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY")
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = JWT_SECRET_KEY
+SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get("DEBUG")
 
 ALLOWED_HOSTS = ['profile-service', 'localhost', '127.0.0.1']
 
@@ -84,7 +85,7 @@ WSGI_APPLICATION = "profile_service.wsgi.application"
 #         'ENGINE': 'django.db.backends.postgresql',
 #         'NAME': 'profile_service_db',
 #         'USER': 'postgres',
-#         'PASSWORD': 'postgres',
+#         'PASSWORD': '',
 #         'HOST': 'profile_db',
 #         'PORT': '5432',
 #     }
@@ -93,11 +94,11 @@ WSGI_APPLICATION = "profile_service.wsgi.application"
 DATABASES = {
     "default": {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get("DATABASE_NAME", "profile_service_db"),
-        'USER': os.environ.get("DATABASE_USER", "postgres"),
-        'PASSWORD': os.environ.get("DATABASE_PASSWORD", "postgres"),
-        'HOST': os.environ.get("DATABASE_HOST", "profile-db"),
-        'PORT': os.environ.get("DATABASE_PORT", "5432"),
+        'NAME': os.environ.get("DATABASE_NAME"),
+        'USER': os.environ.get("DATABASE_USER"),
+        'PASSWORD': os.environ.get("DATABASE_PASSWORD"),
+        'HOST': os.environ.get("DATABASE_HOST"),
+        'PORT': os.environ.get("DATABASE_PORT"),
     }
 }
 
@@ -163,4 +164,5 @@ from datetime import timedelta
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'SIGNING_KEY': JWT_SECRET_KEY,
 }
