@@ -4,8 +4,8 @@ import json
 from kafka import KafkaProducer
 
 
-KAFKA_BROKER = os.environ.get("KAFKA_BROKER", "localhost:9092")
-TOPIC_PROFILE_DELETED = os.environ.get("KAFKA_TOPIC_PROFILE_DELETED", "profile_deleted_topic")
+KAFKA_BROKER = os.environ.get("KAFKA_BROKER")
+TOPIC_PROFILE_DELETED = os.environ.get("KAFKA_TOPIC_PROFILE_DELETED")
 
 producer = KafkaProducer(
     bootstrap_servers=[KAFKA_BROKER],
