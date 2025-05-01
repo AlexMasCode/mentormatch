@@ -9,6 +9,7 @@ from rest_framework.response import Response
 from rest_framework.filters import OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter
+from rest_framework.exceptions import ValidationError
 
 from django.conf import settings
 
@@ -99,11 +100,36 @@ class AvailabilityViewSet(viewsets.ModelViewSet):
             return [IsAuthenticated(), IsMentor()]
         return [IsAuthenticated(), IsMentor(), IsOwnerAvailability()]
 
+    # Метод створення нового вікна доступності
     def perform_create(self, serializer):
-        """
-        Automatically assign mentor_id from Profile Service.
-        """
+        pid = self.get_mentor_profile_id()  # Отримуємо ID профілю ментора
+        start_ts = serializer.validated_data['start_ts']  # Час початку
+        end_ts = serializer.validated_data['end_ts']  # Час завершення
+
+        # Перевіряємо, чи не перетинається новий інтервал з уже існуючими
+        if Availability.objects.filter(
+                mentor_id=pid,
+                start_ts__lt=end_ts,
+                end_ts__gt=start_ts
+        ).exists():
+            raise ValidationError("У вас вже є вікно доступності, що перекриває цей інтервал.")
+
+        serializer.save(mentor_id=pid)  # Зберігаємо, прив'язуючи до ментора
+
+    # Метод оновлення існуючого вікна доступності
+    def perform_update(self, serializer):
         pid = self.get_mentor_profile_id()
+        start_ts = serializer.validated_data.get('start_ts', serializer.instance.start_ts)
+        end_ts = serializer.validated_data.get('end_ts', serializer.instance.end_ts)
+
+        # Перевіряємо на перетин з іншими вікнами, крім поточного
+        if Availability.objects.filter(
+                mentor_id=pid,
+                start_ts__lt=end_ts,
+                end_ts__gt=start_ts
+        ).exclude(pk=serializer.instance.pk).exists():
+            raise ValidationError("Це вікно перекривається з вже існуючим.")
+
         serializer.save(mentor_id=pid)
 
 
@@ -163,11 +189,9 @@ class SessionViewSet(viewsets.ModelViewSet):
         headers = {}
         if auth := self.request.headers.get("Authorization"):
             headers["Authorization"] = auth
-
         resp = requests.get(url, headers=headers, timeout=5)
         resp.raise_for_status()
-        data = resp.json()
-        return data.get("id")
+        return resp.json().get("id")
 
     def get_queryset(self):
         qs = Session.objects.all()
@@ -187,25 +211,82 @@ class SessionViewSet(viewsets.ModelViewSet):
             return [IsAuthenticated()]
         if self.action == 'create':
             return [IsAuthenticated(), IsMentee()]
+        if self.action == 'complete':
+            return [IsAuthenticated(), IsOwnerSession()]
         if self.action in ['partial_update', 'update', 'destroy']:
             return [IsAuthenticated(), IsOwnerSession()]
         return [IsAuthenticated()]
 
+    @action(detail=True, methods=['patch'], url_path='complete')
+    def complete(self, request, pk=None):
+        session = self.get_object()
+
+        if session.status == Session.STATUS_COMPLETED:
+            return Response(
+                {"detail": "Session is already completed."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        session.status = Session.STATUS_COMPLETED
+        session.save(update_fields=['status'])
+
+        try:
+            slot = Availability.objects.get(
+                mentor_id=session.mentor_id,
+                start_ts__lte=session.start_ts,
+                end_ts__gte=session.end_ts,
+            )
+            if slot.is_recurring:
+
+                slot.is_booked = False
+                slot.save(update_fields=['is_booked'])
+            else:
+
+                slot.delete()
+        except Availability.DoesNotExist:
+            logger.warning(
+                "No matching availability slot found for session %s", session.id
+            )
+
+        return Response(self.get_serializer(session).data,
+                        status=status.HTTP_200_OK)
+
     def perform_create(self, serializer):
         mentee_pid = self.get_mentee_profile_id()
-        logger.debug(f"[perform_create] mentee_pid resolved as: {mentee_pid}")
-        mentor_id = serializer.validated_data.get('mentor_id')
-        serializer.save(mentor_id=mentor_id, mentee_id=mentee_pid)
+        mentor_id  = serializer.validated_data['mentor_id']
+        start_ts   = serializer.validated_data['start_ts']
+        end_ts     = serializer.validated_data['end_ts']
+
+
+        session = serializer.save(mentor_id=mentor_id, mentee_id=mentee_pid)
+
+
+        try:
+            slot = Availability.objects.get(
+                mentor_id=mentor_id,
+                start_ts=start_ts,
+                end_ts=end_ts,
+                is_booked=False
+            )
+            slot.is_booked = True
+            slot.save(update_fields=['is_booked'])
+        except Availability.DoesNotExist:
+
+            session.delete()
+            raise ValidationError("Failed to book the exact availability slot.")
 
     @action(detail=False, methods=['get'], url_path='free-slots/(?P<mentor_id>[^/.]+)')
     def free_slots(self, request, mentor_id=None):
         date_from = request.query_params.get('date_from')
-        date_to = request.query_params.get('date_to')
+        date_to   = request.query_params.get('date_to')
         try:
             from_dt = datetime.fromisoformat(date_from) if date_from else None
-            to_dt = datetime.fromisoformat(date_to) if date_to else None
+            to_dt   = datetime.fromisoformat(date_to) if date_to else None
         except ValueError:
-            return Response({'detail': 'Invalid date format.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {'detail': 'Invalid date format.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         avail_qs = Availability.objects.filter(mentor_id=mentor_id)
         if from_dt:
@@ -227,4 +308,3 @@ class SessionViewSet(viewsets.ModelViewSet):
         free = subtract_intervals(avail_list, busy_list)
         data = [{'start': s.isoformat(), 'end': e.isoformat()} for s, e in free]
         return Response(data)
-

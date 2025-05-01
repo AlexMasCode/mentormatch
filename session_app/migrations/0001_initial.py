@@ -2,7 +2,6 @@
 
 from django.db import migrations, models
 
-
 class Migration(migrations.Migration):
 
     initial = True
@@ -28,9 +27,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "start_ts",
-                    models.DateTimeField(
-                        help_text="Start of the availability interval"
-                    ),
+                    models.DateTimeField(help_text="Start of the availability interval"),
                 ),
                 (
                     "end_ts",
@@ -39,7 +36,15 @@ class Migration(migrations.Migration):
                 (
                     "is_recurring",
                     models.BooleanField(
-                        default=False, help_text="Recurring availability (e.g., weekly)"
+                        default=False,
+                        help_text="Recurring availability (e.g., weekly)"
+                    ),
+                ),
+                (
+                    "is_booked",
+                    models.BooleanField(
+                        default=False,
+                        help_text="True if this slot has already been booked"
                     ),
                 ),
             ],
@@ -49,7 +54,11 @@ class Migration(migrations.Migration):
                     models.Index(
                         fields=["mentor_id", "start_ts"],
                         name="session_app_mentor__c8b54d_idx",
-                    )
+                    ),
+                    models.Index(
+                        fields=["mentor_id", "is_booked"],
+                        name="session_app_mentor_booked_idx",
+                    ),
                 ],
             },
         ),

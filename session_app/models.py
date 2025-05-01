@@ -15,10 +15,16 @@ class Availability(models.Model):
         help_text="Recurring availability (e.g., weekly)"
     )
 
+    is_booked = models.BooleanField(
+        default=False,
+        help_text="True if this slot has already been booked"
+    )
+
     class Meta:
         ordering = ['start_ts']
         indexes = [
             models.Index(fields=['mentor_id', 'start_ts']),
+            models.Index(fields=['mentor_id', 'is_booked']),
         ]
 
     def __str__(self):
