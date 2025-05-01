@@ -3,7 +3,7 @@ from .views import (
     MentorProfileDetail, MenteeProfileDetail, MentorProfileList,
     CompanyList, CatalogIndustryList, CatalogFieldList, MenteeProfileListAdmin,
     CompanyDetail, CatalogIndustryDetail, CatalogFieldDetail, CompanyAccessValidation,
-    MenteeProfileSearch, MenteeProfileMe
+    MenteeProfileSearch, MenteeProfileMe, MentorProfileMe
 )
 
 urlpatterns = [
@@ -17,6 +17,8 @@ urlpatterns = [
 
 
     path('mentees/me/', MenteeProfileMe.as_view(), name='mentee-profile-me'),
+    path('mentors/me/', MentorProfileMe.as_view(), name='mentor-profile-me'),
+
     # Endpoints for reference data (catalogs)
     path('companies/', CompanyList.as_view(), name='company-list'),  # List all companies
     path('catalog/industries/', CatalogIndustryList.as_view(), name='catalog-industries-list'),  # List all industries

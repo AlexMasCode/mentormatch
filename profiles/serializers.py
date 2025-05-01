@@ -6,6 +6,17 @@ from .models import (
 )
 
 
+class SimpleCompanySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Company
+        fields = ['id', 'name']
+
+
+class SimpleCatalogFieldSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CatalogField
+        fields = ['id', 'name']
+
 class CatalogIndustrySerializer(serializers.ModelSerializer):
     class Meta:
         model = CatalogIndustry
@@ -70,9 +81,9 @@ class CompanySerializer(serializers.ModelSerializer):
 
 class MentorProfileSerializer(serializers.ModelSerializer):
     skills = SkillSerializer(many=True, read_only=True)
-    company = CompanySerializer(read_only=True)
+    company = SimpleCompanySerializer(read_only=True)
     company_id = serializers.IntegerField(write_only=True, required=False, allow_null=True)
-    specializations = CatalogFieldSerializer(many=True, read_only=True)
+    specializations = SimpleCatalogFieldSerializer(many=True, read_only=True)
     specializations_ids = serializers.ListField(
         child=serializers.IntegerField(), write_only=True, required=False
     )
@@ -81,11 +92,10 @@ class MentorProfileSerializer(serializers.ModelSerializer):
         model = MentorProfile
         fields = [
             'id', 'user_id', 'company', 'company_id',
-            'bio', 'experience_years', 'average_rating',
+            'experience_years', 'average_rating',
             'skills', 'specializations', 'specializations_ids',
-            'created_at', 'updated_at'
         ]
-        read_only_fields = ['user_id', 'average_rating', 'created_at', 'updated_at']
+        read_only_fields = ['user_id', 'average_rating']
 
     def create(self, validated_data):
         company_id = validated_data.pop('company_id', None)

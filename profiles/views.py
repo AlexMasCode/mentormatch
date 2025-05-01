@@ -201,6 +201,35 @@ class MentorProfileList(generics.ListAPIView):
         return MentorProfile.objects.select_related('company') \
             .prefetch_related('skills', 'specializations')
 
+
+@extend_schema(
+    summary="Retrieve authenticated mentor's profile",
+    description=(
+        "Returns the mentor profile associated with the currently authenticated user.\n\n"
+        "Authorization is required via JWT or session. The user must be a mentor and "
+        "must have a corresponding `MentorProfile` instance in the database. "
+        "If no profile is found, a 404 error is returned."
+    ),
+    responses={
+        200: MentorProfileSerializer,
+        401: OpenApiResponse(description="Authentication credentials were not provided or are invalid."),
+        404: OpenApiResponse(description="Mentor profile not found for the authenticated user.")
+    },
+    tags=["mentors"]
+)
+class MentorProfileMe(RetrieveAPIView):
+    """
+    Retrieve the current authenticated user's mentor profile.
+    """
+    serializer_class = MentorProfileSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    def get_object(self):
+        return get_object_or_404(MentorProfile, user_id=self.request.user.id)
+
 # Company list view: List all companies (accessible to authenticated users)
 @extend_schema(
     summary="List All Companies",
