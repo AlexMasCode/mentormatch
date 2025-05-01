@@ -13,9 +13,9 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import os
 
-KAFKA_BROKER = os.getenv('KAFKA_BROKER', 'localhost:9092')
-KAFKA_TOPIC = os.getenv('KAFKA_TOPIC', 'notifications')
-SKIP_MIGRATIONS = os.getenv('SKIP_MIGRATIONS', 'true')
+KAFKA_BROKER = os.getenv('KAFKA_BROKER')
+KAFKA_TOPIC = os.getenv('KAFKA_TOPIC')
+SKIP_MIGRATIONS = os.getenv('SKIP_MIGRATIONS')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
