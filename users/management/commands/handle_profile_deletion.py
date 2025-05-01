@@ -9,8 +9,8 @@ class Command(BaseCommand):
     help = "Consume profile deleted events from Kafka and delete corresponding users"
 
     def handle(self, *args, **options):
-        kafka_broker = os.environ.get("KAFKA_BROKER", "localhost:9092")
-        topic = os.environ.get("KAFKA_TOPIC_PROFILE_DELETED", "profile_deleted_topic")
+        kafka_broker = os.environ.get("KAFKA_BROKER")
+        topic = os.environ.get("KAFKA_TOPIC_PROFILE_DELETED")
 
         consumer = KafkaConsumer(
             topic,

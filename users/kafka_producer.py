@@ -2,8 +2,8 @@ import os
 import json
 from kafka import KafkaProducer
 
-KAFKA_BROKER = os.environ.get("KAFKA_BROKER", "localhost:9092")
-TOPIC_NEW_USER = os.environ.get("KAFKA_TOPIC_NEW_USER", "new_user_topic")
+KAFKA_BROKER = os.environ.get("KAFKA_BROKER")
+TOPIC_NEW_USER = os.environ.get("KAFKA_TOPIC_NEW_USER")
 
 producer = KafkaProducer(
     bootstrap_servers=[KAFKA_BROKER],
