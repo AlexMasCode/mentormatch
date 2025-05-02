@@ -4,8 +4,6 @@ from django.urls import path, include
 from .views import NotificationViewSet
 
 router = DefaultRouter()
-router.register('', NotificationViewSet, basename='notification')
+router.register('', NotificationViewSet, basename='notifications')
 
-urlpatterns = [
-    path('', include(router.urls)),
-]
+urlpatterns = router.urls

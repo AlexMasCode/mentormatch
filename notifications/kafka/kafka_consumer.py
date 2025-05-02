@@ -2,6 +2,7 @@
 import os, django, json, threading
 from kafka import KafkaConsumer
 
+
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'notification_service.settings')
 django.setup()
 
