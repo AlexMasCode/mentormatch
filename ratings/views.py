@@ -4,8 +4,12 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.db import models
+import requests
+from django.conf import settings
+
 
 from session_app.models import Session
+from .kafka.notifications_producer import send_user_notification
 from .models import MentorReview, MenteeRating
 from .serializers import MentorReviewSerializer, MenteeRatingSerializer
 from .permissions import IsSessionMentee, IsSessionMentor, get_profile_id
@@ -44,6 +48,24 @@ class MentorReviewViewSet(viewsets.ModelViewSet):
             mentee_id=session.mentee_id
         )
 
+        url = f"{settings.PROFILE_SERVICE_URL}/api/mentors/{review.mentor_id}/"
+        headers = {}
+        if auth := request.headers.get("Authorization"):
+            headers["Authorization"] = auth
+        try:
+            resp = requests.get(url, headers=headers, timeout=5)
+            resp.raise_for_status()
+            mentor_user_id = resp.json().get("user_id")
+        except requests.RequestException:
+            mentor_user_id = None  # или логируем
+
+
+        if mentor_user_id:
+            send_user_notification(
+                mentor_user_id,
+                f"Ви отримали новий відгук від менті №{review.mentee_id}: {review.score}⭐."
+            )
+
         #3. Recalculate the rating and send to Kafka
         avg = MentorReview.objects.filter(mentor_id=session.mentor_id)\
                .aggregate(models.Avg("score"))["score__avg"] or 0
@@ -66,7 +88,34 @@ class MenteeRatingViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         session = serializer.validated_data['session']
-        serializer.save(
+        rating = serializer.save(
             mentor_id=session.mentor_id,
             mentee_id=session.mentee_id
         )
+
+        url = f"{settings.PROFILE_SERVICE_URL}/api/mentees/{rating.mentee_id}/"
+        headers = {}
+        if auth := self.request.headers.get("Authorization"):
+            headers["Authorization"] = auth
+
+        try:
+            resp = requests.get(url, headers=headers, timeout=5)
+            resp.raise_for_status()
+            mentee_user_id = resp.json().get("user_id")
+        except requests.RequestException:
+            mentee_user_id = None
+
+
+        if mentee_user_id:
+            send_user_notification(
+                mentee_user_id,
+                f"Ви отримали нову оцінку від ментора №{rating.mentor_id}: {rating.score}⭐."
+            )
+
+        return
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)

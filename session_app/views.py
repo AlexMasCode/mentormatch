@@ -13,6 +13,7 @@ from rest_framework.exceptions import ValidationError
 
 from django.conf import settings
 
+from ratings.kafka.notifications_producer import send_user_notification
 from .models import Availability, Session
 from .serializers import AvailabilitySerializer, SessionSerializer
 from .utils import subtract_intervals
@@ -230,6 +231,7 @@ class SessionViewSet(viewsets.ModelViewSet):
         session.status = Session.STATUS_COMPLETED
         session.save(update_fields=['status'])
 
+
         try:
             slot = Availability.objects.get(
                 mentor_id=session.mentor_id,
@@ -237,29 +239,68 @@ class SessionViewSet(viewsets.ModelViewSet):
                 end_ts__gte=session.end_ts,
             )
             if slot.is_recurring:
-
                 slot.is_booked = False
                 slot.save(update_fields=['is_booked'])
             else:
-
                 slot.delete()
         except Availability.DoesNotExist:
             logger.warning(
                 "No matching availability slot found for session %s", session.id
             )
 
+
+        mentee_profile_id = session.mentee_id
+
+        try:
+            resp = requests.get(
+                f"{settings.PROFILE_SERVICE_URL}/api/mentees/{mentee_profile_id}/",
+                headers={'Authorization': request.headers.get('Authorization', '')},
+                timeout=5
+            )
+            resp.raise_for_status()
+            mentee_user_id = resp.json().get("user_id")
+        except requests.RequestException as e:
+            logger.error("Не вдалось отримати user_id менти: %s", e)
+            mentee_user_id = None
+
+        if mentee_user_id:
+            send_user_notification(
+                mentee_user_id,
+                f"Сесія №{session.id} завершена. Не забудьте залишити оцінку."
+            )
+
         return Response(self.get_serializer(session).data,
                         status=status.HTTP_200_OK)
 
     def perform_create(self, serializer):
-        mentee_pid = self.get_mentee_profile_id()
+        mentee_id = self.get_mentee_profile_id()
         mentor_id  = serializer.validated_data['mentor_id']
         start_ts   = serializer.validated_data['start_ts']
         end_ts     = serializer.validated_data['end_ts']
 
 
-        session = serializer.save(mentor_id=mentor_id, mentee_id=mentee_pid)
+        session = serializer.save(mentor_id=mentor_id, mentee_id=mentee_id)
 
+        # Отримуємо реальний user_id ментора
+        url = f"{settings.PROFILE_SERVICE_URL}/api/mentors/{mentee_id}/"
+        headers = {}
+        if auth := self.request.headers.get("Authorization"):
+            headers["Authorization"] = auth
+
+        try:
+            resp = requests.get(url, headers=headers, timeout=5)
+            resp.raise_for_status()
+            mentor_user_id = resp.json().get("user_id")
+        except requests.RequestException as e:
+            logger.error("Не вдалось отримати user_id ментора: %s", e)
+            mentor_user_id = None
+
+        if mentor_user_id:
+            send_user_notification(
+                mentor_user_id,
+                f"Новий запит на сесію від mentee №{mentee_id}: "
+                f"{start_ts.isoformat()}–{end_ts.isoformat()}"
+            )
 
         try:
             slot = Availability.objects.get(
