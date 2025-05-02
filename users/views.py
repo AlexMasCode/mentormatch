@@ -9,6 +9,7 @@ from drf_spectacular.utils import extend_schema, OpenApiResponse
 from django.conf import settings
 import requests
 
+from notifications.kafka_producer import send_user_notification
 from .kafka_producer import publish_new_user_event
 from .models import CustomUser
 from .serializers import RegisterSerializer, CustomTokenObtainPairSerializer
@@ -73,6 +74,12 @@ class RegisterView(APIView):
                 password=password,
                 role=role
             )
+
+            send_user_notification(
+                user.id,
+                f"Ласкаво просимо, {user.first_name}! Реєстрація пройшла успішно."
+            )
+
         except Exception as e:
             return Response({"detail": f"Error during registration: {str(e)}"},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
