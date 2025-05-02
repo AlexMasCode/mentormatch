@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Вхід</title>
+</head>
+<body>
+    <h2>Вхід</h2>
+    {% if messages %}
+      <ul style="color:red;">
+        {% for msg in messages %}<li>{{ msg }}</li>{% endfor %}
+      </ul>
+    {% endif %}
+    <form method="post">
+      {% csrf_token %}
+      {{ form.email.label }}<br>{{ form.email }}<br><br>
+      {{ form.password.label }}<br>{{ form.password }}<br><br>
+      <button type="submit">Увійти</button>
+    </form>
+    <p>Ще не маєте акаунту? <a href="{% url 'portal:register' %}">Зареєструватися</a></p>
+</body>
+</html>
