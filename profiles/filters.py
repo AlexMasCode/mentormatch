@@ -6,6 +6,7 @@ from .models import MentorProfile, Company, MenteeProfile
 class MentorProfileFilter(django_filters.FilterSet):
     # Filter by company ID (exact match)
     company = django_filters.NumberFilter(field_name="company__id", lookup_expr='exact')
+    user_id = django_filters.NumberFilter(field_name="user_id", lookup_expr='exact')
 
     # Filter by company name (case-insensitive partial match)
     company_name = django_filters.CharFilter(field_name="company__name", lookup_expr='icontains')
@@ -27,7 +28,7 @@ class MentorProfileFilter(django_filters.FilterSet):
 
     class Meta:
         model = MentorProfile
-        fields = []
+        fields = ['user_id']
 
     def filter_skills(self, queryset, name, value):
         try:

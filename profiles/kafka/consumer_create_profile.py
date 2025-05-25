@@ -8,7 +8,7 @@ django.setup()
 
 from profiles.models import MentorProfile, MenteeProfile, Company
 
-BROKER = os.getenv("KAFKA_BROKER", "localhost:9092")
+BROKER = os.getenv("KAFKA_BROKER")
 TOPIC  = os.getenv("KAFKA_TOPIC_NEW_USER")
 
 consumer = KafkaConsumer(

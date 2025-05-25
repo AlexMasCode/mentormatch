@@ -275,7 +275,7 @@ class CatalogIndustryList(generics.ListAPIView):
 class CatalogFieldList(generics.ListAPIView):
     queryset = CatalogField.objects.all()
     serializer_class = CatalogFieldSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
 
 @extend_schema_view(
@@ -326,7 +326,8 @@ class CompanyDetail(generics.RetrieveUpdateDestroyAPIView):
     """
     queryset = Company.objects.all()
     serializer_class = CompanySerializer
-    permission_classes = [IsAdminUser]
+    permission_classes = [AllowAny]
+    # permission_classes = [IsAdminUser]
 
 
 class CompanyAccessValidation(APIView):

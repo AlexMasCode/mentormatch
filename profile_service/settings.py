@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
+
 # from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -25,11 +26,15 @@ JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY")
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get("SECRET_KEY")
 
+KAFKA_BROKER = os.environ.get("KAFKA_BROKER")
+KAFKA_TOPIC_NEW_USER = os.environ.get("KAFKA_TOPIC_NEW_USER")
+KAFKA_TOPIC_PROFILE_DELETED = os.environ.get("KAFKA_TOPIC_PROFILE_DELETED")
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DEBUG")
 
-ALLOWED_HOSTS = ['profile-service', 'localhost', '127.0.0.1']
-
+# ALLOWED_HOSTS = ['profile-service', 'localhost', '127.0.0.1', 'api-gateway']
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -44,6 +49,8 @@ INSTALLED_APPS = [
     'profiles',
     'gunicorn',
     'drf_spectacular',
+    'django_filters',
+    'django_prometheus',
 ]
 
 MIDDLEWARE = [
@@ -54,6 +61,9 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+
+    "django_prometheus.middleware.PrometheusBeforeMiddleware",
+    "django_prometheus.middleware.PrometheusAfterMiddleware",
 ]
 
 ROOT_URLCONF = "profile_service.urls"
@@ -76,7 +86,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "profile_service.wsgi.application"
 
-
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
@@ -93,12 +102,15 @@ WSGI_APPLICATION = "profile_service.wsgi.application"
 
 DATABASES = {
     "default": {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get("DATABASE_NAME"),
-        'USER': os.environ.get("DATABASE_USER"),
-        'PASSWORD': os.environ.get("DATABASE_PASSWORD"),
-        'HOST': os.environ.get("DATABASE_HOST"),
-        'PORT': os.environ.get("DATABASE_PORT"),
+        'ENGINE': 'django_prometheus.db.backends.postgresql',
+        'NAME': os.environ.get("DB_NAME"),
+        'USER': os.environ.get("DB_USER"),
+        'PASSWORD': os.environ.get("DB_PASSWORD"),
+        'HOST': os.environ.get("DB_HOST"),
+        'PORT': os.environ.get("DB_PORT"),
+        'OPTIONS': {
+            'sslmode': 'require',
+        },
     }
 }
 
@@ -120,7 +132,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
@@ -131,7 +142,6 @@ TIME_ZONE = "UTC"
 USE_I18N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
@@ -144,7 +154,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'profile_service.custom_jwt_auth.CustomJWTAuthentication',
@@ -154,13 +163,18 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',  # Підтримка фільтрації через ?field=value
+        'rest_framework.filters.SearchFilter',  # Пошук через ?search=keyword
+        'rest_framework.filters.OrderingFilter',  # Сортування через ?ordering=field
+    ],
     # Pagination: PageNumber or LimitOffset
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10,
 }
 
-
 from datetime import timedelta
+
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
