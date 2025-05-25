@@ -27,9 +27,22 @@ SECRET_KEY = SECRET_KEY
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
+
+# Доверенные источники для CSRF (полный URL с схемой и портом)
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:8080',
+    # если будете использовать какое-то доменное имя в Docker/AWS — добавьте его
+    # 'https://myapp.example.com',
+]
+
+API_GATEWAY_URL     = os.getenv('API_GATEWAY_URL')
 
 AUTH_SERVICE_URL = os.getenv('AUTH_SERVICE_URL')
+NOTIFICATION_SERVICE_URL = os.getenv('NOTIFICATION_SERVICE_URL')
+PROFILE_SERVICE_URL = os.getenv('PROFILE_SERVICE_URL')
+CATALOG_SERVICE_URL    = os.getenv('CATALOG_SERVICE_URL')
+COMPANY_SERVICE_URL    = os.getenv('COMPANY_SERVICE_URL')
 
 
 # Application definition
@@ -75,6 +88,27 @@ TEMPLATES = [
         },
     },
 ]
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
+        },
+    },
+    "formatters": {
+        "simple": {
+            "format": "{levelname} {name}:{lineno} {message}",
+            "style": "{",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "DEBUG",
+    },
+}
 
 WSGI_APPLICATION = "web_portal.wsgi.application"
 
@@ -125,6 +159,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = "static/"
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

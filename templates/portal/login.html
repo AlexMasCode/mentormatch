@@ -2,21 +2,130 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <title>Вхід</title>
+    <title>Access Account</title>
+    {% load static %}
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            background: url("{% static 'img/login-bg.png' %}") no-repeat center center fixed; /* 👈 твоя фоновая картинка */
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-container {
+            background-color: rgba(255, 255, 255, 0.95); /* немного прозрачности */
+            padding: 40px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        .login-container h2 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .login-container p.description {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 25px;
+        }
+
+        .form-field {
+            margin-bottom: 20px;
+        }
+
+        .form-field input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+
+        .form-actions a {
+            color: #5b60f5;
+            text-decoration: none;
+        }
+
+        button {
+            width: 100%;
+            background-color: #5b60f5;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 13px;
+            margin-top: 20px;
+        }
+
+        .footer a {
+            color: #5b60f5;
+            text-decoration: none;
+        }
+
+        .error-list {
+            color: red;
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+    </style>
 </head>
 <body>
-    <h2>Вхід</h2>
-    {% if messages %}
-      <ul style="color:red;">
-        {% for msg in messages %}<li>{{ msg }}</li>{% endfor %}
-      </ul>
-    {% endif %}
-    <form method="post">
-      {% csrf_token %}
-      {{ form.email.label }}<br>{{ form.email }}<br><br>
-      {{ form.password.label }}<br>{{ form.password }}<br><br>
-      <button type="submit">Увійти</button>
-    </form>
-    <p>Ще не маєте акаунту? <a href="{% url 'portal:register' %}">Зареєструватися</a></p>
+    <div class="login-container">
+        <h2>Access Account</h2>
+        <p class="description">Access your account to connect with mentors.</p>
+
+        {% if messages %}
+            <ul class="error-list">
+                {% for msg in messages %}<li>{{ msg }}</li>{% endfor %}
+            </ul>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-field">
+                {{ form.email }}
+            </div>
+            <div class="form-field">
+                {{ form.password }}
+            </div>
+
+            <div class="form-actions">
+                <a href="#">Forget your password?</a>
+            </div>
+
+            <button type="submit">Log In</button>
+        </form>
+
+        <div class="footer">
+            Need to create an account? <a href="{% url 'portal:register' %}">Sign Up</a>
+        </div>
+    </div>
 </body>
 </html>

@@ -1,0 +1,234 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Mentor Home - {{ mentor_name }}</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background: #fafafa;
+            margin: 0;
+            padding: 2rem;
+            color: #333;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .header-title {
+            font-size: 24px;
+        }
+
+        .avatar-container {
+            position: relative;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .dropdown {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 12px;
+            width: 180px;
+            display: none;
+        }
+
+        .dropdown.show {
+            display: block;
+        }
+
+        .dropdown a {
+            display: block;
+            padding: 8px;
+            text-decoration: none;
+            color: #333;
+        }
+
+        .dropdown a:hover {
+            background: #f0f0f0;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .card h3 {
+            margin-top: 0;
+        }
+
+        .btn {
+            background-color: #5b60f5;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .notification {
+            background: #fff9e6;
+            border: 1px solid #ffe8b2;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .status {
+            font-size: 13px;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .status.pending {
+            background: #ffe8e8;
+            color: #c0392b;
+        }
+
+        .status.confirmed {
+            background: #e8ffe8;
+            color: #27ae60;
+        }
+
+        .status.cancelled {
+            background: #f5f5f5;
+            color: #7f8c8d;
+        }
+
+        ul {
+            padding-left: 1.2em;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div class="header-title">Welcome, {{ mentor_name }} 👋</div>
+    <div class="avatar-container">
+        <img src="{% static 'img/default-avatar.png' %}" class="avatar" onclick="toggleDropdown()">
+        <div class="dropdown" id="dropdownMenu">
+            <a href="{% url 'portal:profile' %}">👤 View profile</a>
+            <a href="{% url 'portal:logout' %}">🚪 Sign out</a>
+        </div>
+    </div>
+</header>
+
+<div class="grid">
+    <!-- Notifications -->
+    <div class="card">
+        <h3>Notifications</h3>
+        <div id="notif-box">
+            {% if notifications %}
+                {% for note in notifications %}
+                    <div class="notification">{{ note.message }}</div>
+                {% endfor %}
+                <button class="btn" onclick="markRead()">Mark as read</button>
+            {% else %}
+                <p>No new notifications.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Upcoming Sessions -->
+    <div class="card">
+        <h3>Upcoming Sessions</h3>
+        {% if upcoming_sessions %}
+            <ul>
+                {% for sess in upcoming_sessions %}
+                    <li>
+                        <strong>{{ sess.mentee_name }}</strong><br>
+                        {{ sess.date }} at {{ sess.time }}<br>
+                        <span class="status {{ sess.status|lower }}">{{ sess.status }}</span><br>
+                        <a class="btn" href="{{ sess.join_url }}">Join Session</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No scheduled sessions.</p>
+        {% endif %}
+    </div>
+
+    <!-- New Requests -->
+    <div class="card">
+        <h3>New Requests</h3>
+        {% if pending_requests %}
+            <ul>
+                {% for req in pending_requests %}
+                    <li>
+                        <strong>{{ req.mentee_name }}</strong> requested on {{ req.requested_at }}<br>
+                        <span class="status pending">Pending</span><br>
+                        <a class="btn" href="{{ req.detail_url }}">View Request</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No new requests.</p>
+        {% endif %}
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="card">
+        <h3>Quick Actions</h3>
+        <a class="btn" href="{% url 'portal:create_availability' %}">Add Availability</a><br>
+        <a class="btn" href="{% url 'portal:find_mentor' %}">Find Mentees</a><br>
+        <a class="btn" href="{% url 'portal:sessions' %}">View Schedule</a>
+    </div>
+</div>
+
+<script>
+    function markRead() {
+        fetch("{{ notifications_api_url }}", {
+            method: "PATCH",
+            headers: {
+                Authorization: "Bearer {{ access }}",
+                'Content-Type': 'application/json'
+            }
+        }).then(() => {
+            document.getElementById("notif-box")
+                .innerHTML = "<p>No new notifications.</p>";
+        });
+    }
+
+    function toggleDropdown() {
+        document.getElementById('dropdownMenu').classList.toggle('show');
+    }
+
+    window.addEventListener('click', function (e) {
+        if (!e.target.closest('.avatar-container')) {
+            document.getElementById('dropdownMenu').classList.remove('show');
+        }
+    });
+</script>
+</body>
+</html>

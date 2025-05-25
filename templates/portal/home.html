@@ -1,14 +1,94 @@
-<!-- templates/portal/home.html -->
 <!DOCTYPE html>
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <title>Головна</title>
+    <title>{% if role == "MENTOR" %}Панель ментора{% else %}Панель менті{% endif %}</title>
+    <style>
+        body {
+            font-family: system-ui, Arial, sans-serif;
+            margin: 2rem;
+            line-height: 1.45
+        }
+
+        h2 {
+            margin-top: 0
+        }
+
+        ul {
+            padding-left: 1.2rem
+        }
+
+        .card {
+            border: 1px solid #ccd;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1.5rem
+        }
+    </style>
 </head>
 <body>
-    <h2>Вітаємо в MentorMatch!</h2>
+<h2>Вітаємо, {{ first_name }}!</h2>
 
-    <p>Ви успішно увійшли. Ваш access токен:</p>
-    <code>{{ request.session.access }}</code>
+{% if role == "MENTOR" %}
+    <div class="card">
+        <h3>👩‍🏫 Меню ментора</h3>
+        <ul>
+            <li><a href="{% url 'portal:create_availability' %}">Додати вікно доступності</a></li>
+            <li><a href="{% url 'portal:sessions' %}?as=mentor">Запити на сесії</a></li>
+            <li><a href="{% url 'portal:mentor_reviews' %}">Мій рейтинг&nbsp;/&nbsp;відгуки</a></li>
+        </ul>
+    </div>
+{% else %}
+    <div class="card">
+        <h3>🧑‍🎓 Меню менті</h3>
+        <ul>
+            <li><a href="{% url 'portal:find_mentor' %}">Знайти ментора→ забронювати</a></li>
+            <li><a href="{% url 'portal:sessions' %}?as=mentee">Мої сесії</a></li>
+            <li><a href="{% url 'portal:give_feedback' %}">Залишити відгук після сесії</a></li>
+        </ul>
+    </div>
+{% endif %}
+
+<div class="card">
+    <h3>🔔 Сповіщення</h3>
+    <div id="notif-box">Завантаження…</div>
+    <button id="mark-read" style="margin-top:.5rem;display:none">Позначити всі як прочитані</button>
+</div>
+
+<p style="margin-top:2rem"><a href="{% url 'portal:logout' %}">🚪Вийти з акаунту</a></p>
+
+<script>
+    const box = document.getElementById("notif-box");
+    const btn = document.getElementById("mark-read");
+
+    function render(list) {
+        if (!list.length) {
+            box.textContent = "Немає нових сповіщень";
+            btn.style.display = "none";
+            return;
+        }
+        box.innerHTML = "<ul>" + list.map(n => `<li>${n.message}</li>`).join("") + "</ul>";
+        btn.style.display = "inline-block";
+    }
+
+    fetch("{{ notifications_api_url }}", {headers: {Authorization: "Bearer {{ access }}"}})
+        .then(r => r.ok ? r.json() : Promise.reject()).then(data => render(data.results))
+        .catch(() => box.textContent = "Не вдалося отримати сповіщення");
+
+    btn.onclick = () => fetch("{{ notifications_api_url }}mark-all-as-read/", {
+        method: "PATCH",
+        headers: {"Authorization": "Bearer {{ access }}", 'Content-Type': 'application/json'}
+    }).then(() => {
+        box.textContent = "Сповіщення прочитані";
+        btn.style.display = "none"
+    });
+
+    console.log("JWT access:", "{{ access }}");
+</script>
+
+<script>
+    console.log("ACCESS TOKEN:", "{{ access }}");
+</script>
+
 </body>
 </html>

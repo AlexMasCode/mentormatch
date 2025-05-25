@@ -1,0 +1,274 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome, {{ first_name }}</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Segoe UI", sans-serif;
+            background: #fafafa;
+            margin: 0;
+            padding: 2rem;
+            color: #333;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .header-title {
+            font-size: 24px;
+        }
+
+        .avatar-container {
+            position: relative;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .dropdown {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 12px;
+            width: 180px;
+            display: none;
+            z-index: 100;
+        }
+
+        .dropdown.show {
+            display: block;
+        }
+
+        .dropdown .user-info {
+            margin-bottom: 10px;
+        }
+
+        .dropdown .user-info strong {
+            display: block;
+        }
+
+        .dropdown a {
+            display: block;
+            padding: 8px;
+            text-decoration: none;
+            color: #333;
+        }
+
+        .dropdown a:hover {
+            background: #f0f0f0;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .card h3 {
+            margin-top: 0;
+        }
+
+        .btn {
+            background-color: #5b60f5;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .notification {
+            background: #fff9e6;
+            border: 1px solid #ffe8b2;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .profile-list {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .profile {
+            text-align: center;
+        }
+
+        .profile img {
+            border-radius: 50%;
+            width: 64px;
+            height: 64px;
+        }
+
+        .star {
+            color: #ccc;
+            font-size: 20px;
+        }
+
+        .review {
+            text-align: center;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-title">Welcome, {{ first_name }} 👋</div>
+    <div class="avatar-container">
+        <img src="{% static 'img/default-avatar.png' %}" class="avatar" onclick="toggleDropdown()">
+        <div class="dropdown" id="dropdownMenu">
+            <div class="user-info">
+                <strong>{{ first_name }}</strong>
+                {{ email }}
+            </div>
+            <a href="{% url 'portal:profile' %}">👤 View profile</a>
+            <a href="{% url 'portal:logout' %}">🚪 Sign out</a>
+        </div>
+    </div>
+</header>
+
+<div class="grid">
+    <div class="card">
+        <h3>Upcoming Session</h3>
+        {% if next_session %}
+            <div style="border: 1px solid #ccc; border-radius: 8px; padding: 12px;">
+                <strong>{{ next_session.mentor_name }}</strong><br>
+                {{ next_session.specialization }}<br>
+                {{ next_session.date }}<br>
+                <a class="btn" href="{{ next_session.join_url }}">Join Session</a>
+            </div>
+        {% else %}
+            <p>No sessions scheduled yet.</p>
+        {% endif %}
+    </div>
+
+    <div class="card">
+        <h3>Notifications</h3>
+        <div id="notif-box">
+            {% if notifications %}
+                <div class="notification">
+                    {{ notifications.0.message }}
+                </div>
+                <button class="btn" onclick="markRead()">Mark as read</button>
+            {% else %}
+                <p>No new notifications.</p>
+            {% endif %}
+        </div>
+
+    </div>
+
+    <div class="card">
+        <h3>Feedback Requests</h3>
+        {% if feedback_requests %}
+            <div class="profile-list">
+                {% for user in feedback_requests %}
+                    <div class="profile">
+                        <img src="{% static 'img/default-avatar.png' %}" alt="avatar">
+                        <div>{{ user.full_name }}</div>
+                        <a class="btn" href="{{ user.profile_url }}">View Profile</a>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>No feedback requests.</p>
+        {% endif %}
+    </div>
+
+    <div class="card">
+        <h3>Recommended Mentors</h3>
+
+        {% if recommended_mentors %}
+            <div class="profile-list">
+                {% for mentor in recommended_mentors %}
+                    <div class="profile">
+                        {# Аватарка, пока дефолтная #}
+                        <img src="{% static 'img/default-avatar.png' %}" alt="avatar">
+
+                        {# Имя и специализации #}
+                        <div><strong>Mentor #{{ mentor.id }}</strong></div>
+                        {% if mentor.specializations %}
+                            <div>{{ mentor.specializations.0.name }}</div>
+                        {% endif %}
+
+                        {# Средний рейтинг звёздами #}
+                        <div>
+                            {% with mentor.average_rating|floatformat:0 as stars %}
+                                {% for i in "12345"|slice:":5" %}
+                                    <span class="star">{% if forloop.counter <= stars|stringformat:"d" %}★{% else %}
+                                        ☆{% endif %}</span>
+                                {% endfor %}
+                            {% endwith %}
+                        </div>
+
+                        <a class="btn"
+                           href="{% url 'portal:mentor_profile' mentor.id %}">
+                            View Profile
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>No recommendations yet.</p>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    function markRead() {
+        fetch("{{ notifications_api_url }}mark-all-as-read/", {
+            method: "PATCH",
+            headers: {
+                Authorization: "Bearer {{ access }}",
+                'Content-Type': 'application/json'
+            }
+        }).then(() => {
+            const box = document.getElementById("notif-box");
+            box.innerHTML = "<p>No new notifications.</p>";
+        });
+    }
+
+
+    function toggleDropdown() {
+        const dropdown = document.getElementById("dropdownMenu");
+        dropdown.classList.toggle("show");
+    }
+
+    window.addEventListener('click', function (e) {
+        if (!e.target.closest('.avatar-container')) {
+            document.getElementById("dropdownMenu").classList.remove("show");
+        }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Select Your Fields</title>
+  <style>
+    * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+    body { background: #fafafa; margin:0; padding:2rem; color:#333; }
+    .container { max-width:600px; margin:0 auto; background:white; padding:20px; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.05); }
+    h2 { margin-top:0; }
+    .field-item { margin-bottom:8px; }
+    .btn { background:#5b60f5; color:white; border:none; padding:10px 16px; border-radius:6px; font-weight:bold; cursor:pointer; }
+    .messages { margin-bottom:16px; }
+    .messages .error { color:#c0392b; }
+    .messages .success { color:#27ae60; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Choose your fields</h2>
+
+    {% if messages %}
+      <div class="messages">
+        {% for m in messages %}
+          <div class="{{ m.tags }}">{{ m }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <form method="post">
+      {% csrf_token %}
+      {% if fields %}
+        {% for f in fields %}
+          <label class="field-item">
+            <input type="checkbox" name="fields" value="{{ f.id }}">
+            {{ f.name }}
+          </label><br>
+        {% endfor %}
+      {% else %}
+        <p>No fields available at the moment.</p>
+      {% endif %}
+
+      <button type="submit" class="btn">Submit</button>
+    </form>
+  </div>
+</body>
+</html>
