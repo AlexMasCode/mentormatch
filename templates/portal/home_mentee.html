@@ -212,16 +212,13 @@
             <div class="profile-list">
                 {% for mentor in recommended_mentors %}
                     <div class="profile">
-                        {# Аватарка, пока дефолтная #}
                         <img src="{% static 'img/default-avatar.png' %}" alt="avatar">
-
-                        {# Имя и специализации #}
+                    
                         <div><strong>Mentor #{{ mentor.id }}</strong></div>
                         {% if mentor.specializations %}
                             <div>{{ mentor.specializations.0.name }}</div>
                         {% endif %}
-
-                        {# Средний рейтинг звёздами #}
+                    
                         <div>
                             {% with mentor.average_rating|floatformat:0 as stars %}
                                 {% for i in "12345"|slice:":5" %}

@@ -60,7 +60,6 @@ class RegisterView(View):
                     request.session['user_first_name'] = jwt_data.get('first_name')
                     request.session['role'] = jwt_data.get('role')
 
-                    # Додатково: company_id, який знадобиться для подальших кроків
                     request.session['mentor_company_id'] = form.cleaned_data['company_id']
 
                     return redirect('portal:mentor_fields')
@@ -71,11 +70,11 @@ class RegisterView(View):
                     )
                     return redirect('portal:login')
 
-            # Для mentee або якщо роль інша
+
             messages.info(request, 'Тепер увійдіть у систему.')
             return redirect('portal:login')
 
-        # Якщо не 201 — показуємо помилку
+
         messages.error(request, 'Реєстрація не вдалася. Спробуйте ще раз.')
         return render(request, 'portal/register.html', {'form': form})
 
@@ -101,14 +100,14 @@ class LoginView(View):
             request.session['access'] = data['access']
             request.session['refresh'] = data['refresh']
 
-            # Распарсим access-токен
+
             jwt_data = decode_jwt_payload(data['access'])
 
-            # Сохраняем данные из токена
+
             request.session['role'] = jwt_data.get('role')
             request.session['user_first_name'] = jwt_data.get('first_name')
 
-            # Редирект по роли
+
             if jwt_data.get('role') == 'MENTEE':
                 return redirect('portal:mentee_home')
             elif jwt_data.get('role') == 'MENTOR':
@@ -116,7 +115,6 @@ class LoginView(View):
 
             return redirect('portal:home')
 
-        # Обработка ошибок
         try:
             detail = resp.json().get('detail') or resp.json()
         except (JSONDecodeError, ValueError):
@@ -128,8 +126,8 @@ class LoginView(View):
 
 class HomeView(View):
     """
-    Показываем панель с меню, зависящим от роли.
-    Если сессия не содержит access – редирект на /login/
+    Показуємо панель із меню, що залежить від ролі.
+    Якщо сесія не містить access –редирект на /login/
     """
 
     def get(self, request):
@@ -143,7 +141,6 @@ class HomeView(View):
             "access": access,
             "role": payload.get("role", "MENTEE"),
             "first_name": payload.get("first_name", ""),
-            # API‑endpoint нотификаций (notification‑service)
             "notifications_api_url": notifications_url
         }
         return render(request, "portal/home.html", ctx)
@@ -171,7 +168,6 @@ class MenteeHomeView(View):
             "notifications_api_url": f"{settings.NOTIFICATION_SERVICE_URL}/mark-all-as-read/",
             "access": request.session.get("access")
         }
-        # ——— ПОДГРУЖАЕМ 4 РЕКОМЕНДУЕМЫХ МЕНТОРА ———
         try:
             resp = requests.get(
                 f"{settings.PROFILE_SERVICE_URL}/mentors/",
@@ -184,10 +180,8 @@ class MenteeHomeView(View):
 
             if resp.status_code == 200:
                 data = resp.json().get("results", [])
-                # оставляем только первые 4
                 context["recommended_mentors"] = data[:4]
         except requests.RequestException:
-            # в случае ошибки просто оставим пустой список
             context["recommended_mentors"] = []
 
         return render(request, "portal/home_mentee.html", context)
@@ -196,11 +190,9 @@ class MenteeHomeView(View):
 class MentorHomeView(View):
     def get(self, request):
         access = request.session.get('access')
-        # если не залогинились — кидаем на логин
         if not access:
             return redirect('portal:login')
 
-        # ——— ПОДГРУЖАЕМ УВЕДОМЛЕНИЯ МЕНТОРА ———
         notifications = []
         try:
             resp = requests.get(
@@ -209,7 +201,6 @@ class MentorHomeView(View):
                 timeout=5
             )
             if resp.status_code == 200:
-                # ожидаем, что сервис возвращает { results: [ { message: ... }, ... ] }
                 notifications = resp.json().get("results", [])
         except requests.RequestException:
             notifications = []
@@ -217,7 +208,6 @@ class MentorHomeView(View):
 
 
 
-        # тут можешь подцепить реальные нотификации, сессии и заявки через api_request
         context = {
             "mentor_name": request.session.get("user_first_name", "Mentor"),
             "notifications": notifications,
@@ -255,14 +245,13 @@ class LogoutView(View):
         return redirect('portal:login')
 
 
-# ----------  Меню ментора ----------
 class CreateAvailabilityView(View):
     def get(self, request):
         return render(request, 'portal/create_availability.html')
 
     def post(self, request):
         # TODO: call Session‑service API
-        messages.success(request, 'Збережено ✔')
+        messages.success(request, 'Збережено')
         return redirect('portal:home')
 
 
@@ -271,7 +260,6 @@ class MentorReviewsView(View):
         return render(request, 'portal/mentor_reviews.html')
 
 
-# ----------  Меню менті ----------
 class FindMentorView(View):
     def get(self, request):
         # fake results demo
@@ -290,7 +278,6 @@ class GiveFeedbackView(View):
         return redirect('portal:home')
 
 
-# ----------  Спільне ----------
 class SessionsView(View):
     def get(self, request):
         return render(request, 'portal/sessions.html')
@@ -302,21 +289,19 @@ class ProfileView(TemplateView):
 
 class MentorFieldSelectionView(View):
     """
-            Allow a newly registered mentor to select their fields
-            based on the industry of the company they chose at registration.
-            """
+        Allow a newly registered mentor to select their fields
+        based on the industry of the company they chose at registration.
+    """
 
     def get(self, request):
         access = request.session.get('access')
         if not access:
             return redirect('portal:login')
 
-        # 1) Извлекаем auth_user_id из токена
         jwt_data = decode_jwt_payload(access)
         auth_user_id = jwt_data.get('user_id')
         logger.debug("Decoded auth user_id: %s", auth_user_id)
 
-        # 2) Запрашиваем свой MentorProfile, передавая токен
         profile_id = request.session.get('mentor_profile_id')
         if not profile_id:
             try:
@@ -336,10 +321,9 @@ class MentorFieldSelectionView(View):
                 logger.error("Error fetching mentor profile: %s", e, exc_info=True)
 
         if not profile_id:
-            messages.error(request, "Не найден ваш ментор-профиль.")
+            messages.error(request, "Не знайдено ваш ментор-профіль.")
             return redirect("portal:home")
 
-        # 3) Получаем профиль, чтобы узнать company → industry_id
         industry_id = None
         try:
             url_comp = f"{settings.COMPANY_SERVICE_URL}/{request.session.get('mentor_company_id')}/"
@@ -350,7 +334,6 @@ class MentorFieldSelectionView(View):
         except Exception as e:
             logger.error("Error fetching company: %s", e, exc_info=True)
 
-        # 4) GET всех полей и фильтрация
         fields = []
         try:
             url_fields = f"{settings.CATALOG_SERVICE_URL}/fields/"
@@ -365,7 +348,7 @@ class MentorFieldSelectionView(View):
                 fields = all_fields
         except Exception as e:
             logger.error("Error fetching/filtering fields: %s", e, exc_info=True)
-            messages.error(request, "Не удалось загрузить список полей.")
+            messages.error(request, "Неможливо завантажити список полів.")
 
         logger.debug("Fields for selection: %s", fields)
         return render(request, 'portal/mentor_fields.html', {
@@ -377,11 +360,10 @@ class MentorFieldSelectionView(View):
         raw = request.POST.getlist('fields')
         logger.debug("Raw POST getlist('fields'): %r", raw)
 
-        # 1) Приводим к int
         try:
             selected = [int(x) for x in raw]
         except ValueError:
-            messages.error(request, "Некорректные идентификаторы полей.")
+            messages.error(request, "Некоректні ідентифікатори полів.")
             return self.get(request)
         logger.debug("Converted selected IDs to ints: %r", selected)
 
@@ -405,7 +387,7 @@ class MentorFieldSelectionView(View):
                 timeout=5
             )
             logger.debug("PATCH status: %s", patch_resp.status_code)
-            # посмотрите, что возвращает сервис
+
             try:
                 body = patch_resp.json()
                 logger.debug("PATCH response JSON: %s", body)
@@ -426,5 +408,4 @@ class MentorFieldSelectionView(View):
             logger.error("Unexpected error: %s", e, exc_info=True)
             messages.error(request, "Service unavailable—try again later.")
 
-        # если что-то пошло не так, показываем форму снова
         return self.get(request)

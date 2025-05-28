@@ -1,24 +1,26 @@
 {% extends "portal/base.html" %}
 {% block title %}Пошук ментора{% endblock %}
 {% block content %}
-<h3>Знайти ментора</h3>
-<form method="get" class="row g-2 mb-3">
-  <div class="col-md-6"><input name="q" class="form-control" placeholder="Python, ML…"></div>
-  <div class="col-md-3"><button class="btn btn-success w-100">Пошук</button></div>
-</form>
+    <h3>Знайти ментора</h3>
+    <form method="get" class="row g-2 mb-3">
+        <div class="col-md-6"><input name="q" class="form-control" placeholder="Python, ML…"></div>
+        <div class="col-md-3">
+            <button class="btn btn-success w-100">Пошук</button>
+        </div>
+    </form>
 
-{% if results is not None %}
-  {% if results %}
-    <ul class="list-group">
-      {% for m in results %}
-        <li class="list-group-item d-flex justify-content-between align-items-center">
-          {{ m.first_name }} {{ m.last_name }} ({{ m.field }})
-          <a class="btn btn-sm btn-primary" href="#">Запросити сесію</a>
-        </li>
-      {% endfor %}
-    </ul>
-  {% else %}
-    <p class="text-muted">Нічого не знайдено…</p>
-  {% endif %}
-{% endif %}
+    {% if results is not None %}
+        {% if results %}
+            <ul class="list-group">
+                {% for m in results %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ m.first_name }} {{ m.last_name }} ({{ m.field }})
+                        <a class="btn btn-sm btn-primary" href="#">Запросити сесію</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-muted">Нічого не знайдено…</p>
+        {% endif %}
+    {% endif %}
 {% endblock %}

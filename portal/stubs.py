@@ -1,8 +1,7 @@
-# portal/stubs.py
 from django.http import HttpResponse
 from django.shortcuts import redirect
 
-def _todo(_): return HttpResponse("⛔️TODO–страница ещё не реализована")
+def _todo(_): return HttpResponse("TODO-сторінка ще не реалізована")
 
 logout_view        = lambda r: (r.session.flush(), redirect("portal:login"))[1]
 create_availability = _todo

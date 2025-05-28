@@ -2,159 +2,160 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-  <meta charset="UTF-8">
-  <title>Create Account</title>
-  <style>
-    * {
-      box-sizing: border-box;
-      font-family: 'Segoe UI', sans-serif;
-    }
+    <meta charset="UTF-8">
+    <title>Create Account</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
 
-    body {
-      margin: 0;
-      padding: 0;
-      background: #f5f5fa;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
+        body {
+            margin: 0;
+            padding: 0;
+            background: #f5f5fa;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
 
-    .register-container {
-      background: #fff;
-      padding: 40px;
-      border-radius: 12px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
-      width: 100%;
-      max-width: 450px;
-    }
+        .register-container {
+            background: #fff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 450px;
+        }
 
-    h2 {
-      text-align: center;
-      margin-bottom: 10px;
-    }
+        h2 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
 
-    .description {
-      text-align: center;
-      color: #666;
-      font-size: 14px;
-      margin-bottom: 25px;
-    }
+        .description {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 25px;
+        }
 
-    .form-field {
-      margin-bottom: 18px;
-    }
+        .form-field {
+            margin-bottom: 18px;
+        }
 
-    .form-field input, .form-field select {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 14px;
-      background: #f9f9f9;
-    }
+        .form-field input, .form-field select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+            background: #f9f9f9;
+        }
 
-    .form-field input:focus, .form-field select:focus {
-      border-color: #5b60f5;
-      outline: none;
-    }
+        .form-field input:focus, .form-field select:focus {
+            border-color: #5b60f5;
+            outline: none;
+        }
 
-    .checkbox {
-      display: flex;
-      align-items: center;
-      font-size: 13px;
-      margin-bottom: 20px;
-    }
+        .checkbox {
+            display: flex;
+            align-items: center;
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
 
-    .checkbox input {
-      margin-right: 10px;
-    }
+        .checkbox input {
+            margin-right: 10px;
+        }
 
-    button {
-      width: 100%;
-      background-color: #5b60f5;
-      color: white;
-      border: none;
-      padding: 12px;
-      border-radius: 6px;
-      font-weight: bold;
-      font-size: 15px;
-      cursor: pointer;
-    }
+        button {
+            width: 100%;
+            background-color: #5b60f5;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 15px;
+            cursor: pointer;
+        }
 
-    .footer {
-      text-align: center;
-      font-size: 13px;
-      margin-top: 20px;
-    }
+        .footer {
+            text-align: center;
+            font-size: 13px;
+            margin-top: 20px;
+        }
 
-    .footer a {
-      color: #5b60f5;
-      text-decoration: none;
-    }
+        .footer a {
+            color: #5b60f5;
+            text-decoration: none;
+        }
 
-    .hidden {
-      display: none;
-    }
+        .hidden {
+            display: none;
+        }
 
-    .error-list {
-      color: red;
-      font-size: 13px;
-      margin-bottom: 10px;
-    }
-  </style>
+        .error-list {
+            color: red;
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+    </style>
 </head>
 <body>
 <div class="register-container">
-  <h2>Create Account</h2>
-  <p class="description">Choose your path and connect with your mentor or mentee.</p>
+    <h2>Create Account</h2>
+    <p class="description">Choose your path and connect with your mentor or mentee.</p>
 
-  {% if form.non_field_errors %}
-    <ul class="error-list">
-      {% for err in form.non_field_errors %}<li>{{ err }}</li>{% endfor %}
-    </ul>
-  {% endif %}
+    {% if form.non_field_errors %}
+        <ul class="error-list">
+            {% for err in form.non_field_errors %}
+                <li>{{ err }}</li>{% endfor %}
+        </ul>
+    {% endif %}
 
-  <form method="post" id="reg-form">
-    {% csrf_token %}
-    <div class="form-field">{{ form.first_name }}</div>
-    <div class="form-field">{{ form.last_name }}</div>
-    <div class="form-field">{{ form.email }}</div>
-    <div class="form-field">{{ form.password }}</div>
-    <div class="form-field">{{ form.role }}</div>
+    <form method="post" id="reg-form">
+        {% csrf_token %}
+        <div class="form-field">{{ form.first_name }}</div>
+        <div class="form-field">{{ form.last_name }}</div>
+        <div class="form-field">{{ form.email }}</div>
+        <div class="form-field">{{ form.password }}</div>
+        <div class="form-field">{{ form.role }}</div>
 
-    <div id="mentor-fields" class="hidden">
-      <div class="form-field">{{ form.company_id }}</div>
-      <div class="form-field">{{ form.access_key }}</div>
+        <div id="mentor-fields" class="hidden">
+            <div class="form-field">{{ form.company_id }}</div>
+            <div class="form-field">{{ form.access_key }}</div>
+        </div>
+
+        <div class="checkbox">
+            <input type="checkbox" required>
+            <label>I agree with <a href="#">Terms & Conditions</a></label>
+        </div>
+
+        <button type="submit">Sign Up</button>
+    </form>
+
+    <div class="footer">
+        Already registered? <a href="{% url 'portal:login' %}">Log In</a>
     </div>
-
-    <div class="checkbox">
-      <input type="checkbox" required>
-      <label>I agree with <a href="#">Terms & Conditions</a></label>
-    </div>
-
-    <button type="submit">Sign Up</button>
-  </form>
-
-  <div class="footer">
-    Already registered? <a href="{% url 'portal:login' %}">Log In</a>
-  </div>
 </div>
 
 <script>
-  const roleSelect = document.getElementById("id_role");
-  const mentorFields = document.getElementById("mentor-fields");
+    const roleSelect = document.getElementById("id_role");
+    const mentorFields = document.getElementById("mentor-fields");
 
-  function toggleMentorFields() {
-    if (roleSelect.value === "MENTOR") {
-      mentorFields.classList.remove("hidden");
-    } else {
-      mentorFields.classList.add("hidden");
+    function toggleMentorFields() {
+        if (roleSelect.value === "MENTOR") {
+            mentorFields.classList.remove("hidden");
+        } else {
+            mentorFields.classList.add("hidden");
+        }
     }
-  }
 
-  roleSelect.addEventListener("change", toggleMentorFields);
-  window.addEventListener("DOMContentLoaded", toggleMentorFields);
+    roleSelect.addEventListener("change", toggleMentorFields);
+    window.addEventListener("DOMContentLoaded", toggleMentorFields);
 </script>
 </body>
 </html>

@@ -1,21 +1,21 @@
 {% extends "portal/base.html" %}
 {% block title %}Додати вікно доступності{% endblock %}
 {% block content %}
-<h3>Нове вікно доступності</h3>
-<form method="post" class="mt-3">
-  {% csrf_token %}
-  <div class="mb-2">
-    <label class="form-label">Початок (ISO)</label>
-    <input name="start_ts" class="form-control" placeholder="2025-06-03T09:00:00Z">
-  </div>
-  <div class="mb-2">
-    <label class="form-label">Кінець (ISO)</label>
-    <input name="end_ts" class="form-control" placeholder="2025-06-03T10:00:00Z">
-  </div>
-  <div class="form-check mb-3">
-    <input class="form-check-input" type="checkbox" value="true" name="is_recurring" id="rec">
-    <label class="form-check-label" for="rec">Повторюване щотижня?</label>
-  </div>
-  <button class="btn btn-primary">Зберегти</button>
-</form>
+    <h3>Нове вікно доступності</h3>
+    <form method="post" class="mt-3">
+        {% csrf_token %}
+        <div class="mb-2">
+            <label class="form-label">Початок (ISO)</label>
+            <input name="start_ts" class="form-control" placeholder="2025-06-03T09:00:00Z">
+        </div>
+        <div class="mb-2">
+            <label class="form-label">Кінець (ISO)</label>
+            <input name="end_ts" class="form-control" placeholder="2025-06-03T10:00:00Z">
+        </div>
+        <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" value="true" name="is_recurring" id="rec">
+            <label class="form-check-label" for="rec">Повторюване щотижня?</label>
+        </div>
+        <button class="btn btn-primary">Зберегти</button>
+    </form>
 {% endblock %}

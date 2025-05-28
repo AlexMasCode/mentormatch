@@ -29,10 +29,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-# Доверенные источники для CSRF (полный URL с схемой и портом)
+
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:8080',
-    # если будете использовать какое-то доменное имя в Docker/AWS — добавьте его
     # 'https://myapp.example.com',
 ]
 

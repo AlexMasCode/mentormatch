@@ -7,7 +7,7 @@ def api_request(method, url, session, **kwargs):
     if token:
         headers['Authorization'] = f'Bearer {token}'
     resp = requests.request(method, url, headers=headers, **kwargs)
-    # якщо сесійний токен протух — оновлюємо
+
     if resp.status_code == 401 and session.get('refresh'):
         r = requests.post(
             f"{settings.AUTH_SERVICE_URL}/api/auth/token/refresh/",
