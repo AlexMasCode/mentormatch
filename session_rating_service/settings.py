@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt.token_blacklist",
     "drf_spectacular",
     "django_filters",
+    "django_prometheus",
     "requests",
 
     "session_app",
@@ -61,6 +62,9 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+
+    "django_prometheus.middleware.PrometheusBeforeMiddleware",
+    "django_prometheus.middleware.PrometheusAfterMiddleware",
 ]
 
 ROOT_URLCONF = "session_rating_service.urls"
@@ -109,12 +113,15 @@ DB_PORT     = os.getenv("DB_PORT")
 
 DATABASES = {
     "default": {
-            "ENGINE":   "django.db.backends.postgresql",
+            "ENGINE":   "django_prometheus.db.backends.postgresql",
             "NAME":     DB_NAME,
             "USER":     DB_USER,
             "PASSWORD": DB_PASSWORD,
             "HOST":     DB_HOST,
             "PORT":     DB_PORT,
+            'OPTIONS': {
+                'sslmode': 'require',
+            },
     }
 }
 

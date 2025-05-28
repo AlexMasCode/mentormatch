@@ -1,4 +1,3 @@
-# session_app/views.py
 from datetime import datetime
 import logging
 import requests
@@ -103,9 +102,9 @@ class AvailabilityViewSet(viewsets.ModelViewSet):
 
     # Метод створення нового вікна доступності
     def perform_create(self, serializer):
-        pid = self.get_mentor_profile_id()  # Отримуємо ID профілю ментора
-        start_ts = serializer.validated_data['start_ts']  # Час початку
-        end_ts = serializer.validated_data['end_ts']  # Час завершення
+        pid = self.get_mentor_profile_id()
+        start_ts = serializer.validated_data['start_ts']
+        end_ts = serializer.validated_data['end_ts']
 
         # Перевіряємо, чи не перетинається новий інтервал з уже існуючими
         if Availability.objects.filter(
@@ -115,7 +114,7 @@ class AvailabilityViewSet(viewsets.ModelViewSet):
         ).exists():
             raise ValidationError("У вас вже є вікно доступності, що перекриває цей інтервал.")
 
-        serializer.save(mentor_id=pid)  # Зберігаємо, прив'язуючи до ментора
+        serializer.save(mentor_id=pid)
 
     # Метод оновлення існуючого вікна доступності
     def perform_update(self, serializer):

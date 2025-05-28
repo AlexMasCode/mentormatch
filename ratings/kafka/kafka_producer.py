@@ -1,4 +1,3 @@
-# ratings/kafka/kafka_producer.py
 import json
 import logging
 from kafka import KafkaProducer

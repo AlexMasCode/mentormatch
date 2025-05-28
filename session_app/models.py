@@ -1,6 +1,11 @@
 from django.db import models
+from django_prometheus.models import ExportModelOperationsMixin
 
-class Availability(models.Model):
+
+class Availability(
+    ExportModelOperationsMixin('availability'),
+    models.Model
+):
     mentor_id = models.IntegerField(
         help_text="Mentor ID from Profile Service"
     )
@@ -31,7 +36,10 @@ class Availability(models.Model):
         return f"Mentor {self.mentor_id}: {self.start_ts} → {self.end_ts}"
 
 
-class Session(models.Model):
+class Session(
+    ExportModelOperationsMixin('session'),
+    models.Model
+):
     STATUS_PENDING   = 'pending'
     STATUS_CONFIRMED = 'confirmed'
     STATUS_COMPLETED = 'completed'
@@ -75,3 +83,4 @@ class Session(models.Model):
 
     def __str__(self):
         return f"Session {self.id}: {self.mentor_id} ↔ {self.mentee_id} [{self.status}]"
+

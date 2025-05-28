@@ -1,7 +1,12 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django_prometheus.models import ExportModelOperationsMixin
 
-class MentorReview(models.Model):
+
+class MentorReview(
+    ExportModelOperationsMixin('mentor_review'),
+    models.Model
+):
     session = models.OneToOneField(
         "session_app.Session",
         on_delete=models.CASCADE,
@@ -20,7 +25,10 @@ class MentorReview(models.Model):
             models.Index(fields=["mentor_id"]),
         ]
 
-class MenteeRating(models.Model):
+class MenteeRating(
+    ExportModelOperationsMixin('mentee_rating'),
+    models.Model
+):
     session = models.OneToOneField(
         "session_app.Session",
         on_delete=models.CASCADE,

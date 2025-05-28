@@ -1,4 +1,3 @@
-# sessions_app/serializers.py
 from rest_framework import serializers
 from .models import Availability, Session
 import requests
@@ -56,7 +55,6 @@ class SessionSerializer(serializers.ModelSerializer):
         if start_ts and end_ts and start_ts >= end_ts:
             raise serializers.ValidationError("'start_ts' must be before 'end_ts'.")
 
-        # тут - **точний** збіг з вікном availability
         if mentor_id and start_ts and end_ts:
             exists = Availability.objects.filter(
                 mentor_id=mentor_id,

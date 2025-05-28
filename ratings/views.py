@@ -57,7 +57,7 @@ class MentorReviewViewSet(viewsets.ModelViewSet):
             resp.raise_for_status()
             mentor_user_id = resp.json().get("user_id")
         except requests.RequestException:
-            mentor_user_id = None  # или логируем
+            mentor_user_id = None
 
 
         if mentor_user_id:
