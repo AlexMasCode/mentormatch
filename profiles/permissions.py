@@ -1,4 +1,3 @@
-# profiles/permissions.py
 from rest_framework import permissions
 
 class IsOwnerOrAdmin(permissions.BasePermission):

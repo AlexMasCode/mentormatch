@@ -1,4 +1,3 @@
-# profiles/filters.py
 import django_filters
 from .models import MentorProfile, Company, MenteeProfile
 

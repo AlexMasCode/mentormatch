@@ -8,8 +8,8 @@ from .views import (
 
 urlpatterns = [
     # Endpoints for profile views
-    path('mentors/<int:pk>/', MentorProfileDetail.as_view(), name='mentor-profile-detail'),  # Get a specific mentor profile
-    path('mentees/<int:pk>/', MenteeProfileDetail.as_view(), name='mentee-profile-detail'),  # Get a specific mentee profile
+    path('mentors/<int:pk>/', MentorProfileDetail.as_view(), name='mentor-profile-detail'),
+    path('mentees/<int:pk>/', MenteeProfileDetail.as_view(), name='mentee-profile-detail'),
     path('mentors/', MentorProfileList.as_view(), name='mentor-profile-list'),  # List all mentor profiles
     path('admin/mentees/', MenteeProfileListAdmin.as_view(), name='mentee-list-admin'),
 

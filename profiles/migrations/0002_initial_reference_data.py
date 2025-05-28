@@ -97,7 +97,7 @@ def create_initial_data(apps, schema_editor):
                 industry=created_industries[industry_name],
                 name=field_name
             )
-            # Save first two IT specializations
+
             if industry_name == 'Information Technology' and field_name in ['Software Development', 'Data Science']:
                 created_fields[field_name] = field_obj
 

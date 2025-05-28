@@ -164,9 +164,9 @@ REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 
     'DEFAULT_FILTER_BACKENDS': [
-        'django_filters.rest_framework.DjangoFilterBackend',  # Підтримка фільтрації через ?field=value
-        'rest_framework.filters.SearchFilter',  # Пошук через ?search=keyword
-        'rest_framework.filters.OrderingFilter',  # Сортування через ?ordering=field
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.SearchFilter',
+        'rest_framework.filters.OrderingFilter',
     ],
     # Pagination: PageNumber or LimitOffset
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',

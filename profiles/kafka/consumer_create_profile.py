@@ -1,4 +1,3 @@
-# profile_service/consumer_create_profile.py
 import os, sys, json, django
 from kafka import KafkaConsumer
 
