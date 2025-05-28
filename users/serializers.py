@@ -60,7 +60,7 @@ class PasswordResetSerializer(serializers.Serializer):
 
     def validate_email(self, value):
         if not User.objects.filter(email=value).exists():
-            raise serializers.ValidationError("Пользователь с таким email не найден.")
+            raise serializers.ValidationError("Користувача з таким email не знайдено.")
         return value
 
 
@@ -77,9 +77,9 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
         try:
             user = User.objects.get(email=data['email'])
         except User.DoesNotExist:
-            raise serializers.ValidationError("Пользователь с таким email не найден.")
+            raise serializers.ValidationError("Користувача з таким email не знайдено.")
         token_generator = PasswordResetTokenGenerator()
         if not token_generator.check_token(user, data['token']):
-            raise serializers.ValidationError({"token": "Неверный или устаревший токен."})
+            raise serializers.ValidationError({"token": "Неправильний або застарілий токен."})
         data['user'] = user
         return data

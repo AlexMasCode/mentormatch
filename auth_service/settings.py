@@ -31,7 +31,7 @@ PROFILE_SERVICE_COMPANIES_VALIDATE_ACCESS_URL = os.environ.get("PROFILE_SERVICE_
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
 
     'gunicorn',
+    'django_prometheus',
     'drf_spectacular',
     'users.apps.UsersConfig',
     'rest_framework_simplejwt.token_blacklist',
@@ -78,6 +79,9 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+
+    "django_prometheus.middleware.PrometheusBeforeMiddleware",
+    "django_prometheus.middleware.PrometheusAfterMiddleware",
 ]
 
 ROOT_URLCONF = "auth_service.urls"
@@ -106,13 +110,17 @@ WSGI_APPLICATION = "auth_service.wsgi.application"
 
 DATABASES = {
     "default": {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'django_prometheus.db.backends.postgresql',
         'NAME': os.environ.get('DB_NAME'),
         'USER': os.environ.get('DB_USER'),
         'PASSWORD': os.environ.get('DB_PASSWORD'),
         'HOST': os.environ.get('DB_HOST'),
         'PORT': os.environ.get('DB_PORT'),
+        'OPTIONS': {
+            'sslmode': 'require',
+        },
     }
+
 }
 
 

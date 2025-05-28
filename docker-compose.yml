@@ -35,7 +35,7 @@ services:
     environment:
       - DATABASE_URL=postgres://myuser:mypassword@db:5432/auth_service_db
     volumes:
-      - .:/app  # for local changes
+      - .:/app
 
 volumes:
   postgres_data:

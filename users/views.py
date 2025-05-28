@@ -65,7 +65,6 @@ class RegisterView(APIView):
                 return Response({"detail": "Unable to validate company access key."},
                                 status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
-        # If all checks have passed, we proceed to creating the user
         try:
             user = CustomUser.objects.create_user(
                 email=email,

@@ -1,4 +1,3 @@
-# auth_service/notifications/kafka_producer.py
 import os
 import json
 from kafka import KafkaProducer
