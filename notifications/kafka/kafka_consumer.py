@@ -1,4 +1,3 @@
-# notifications/kafka_consumer.py
 import os, django, json, threading
 from kafka import KafkaConsumer
 
@@ -24,7 +23,6 @@ executor = ThreadPoolExecutor(max_workers=int(os.getenv('WORKER_THREADS', '5')))
 
 def handle_message(msg):
     data = msg.value
-    # expected payload: {"user_id":..., "message":...}
     Notification.objects.create(
         user_id=data['user_id'],
         message=data['message']

@@ -37,7 +37,7 @@ JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY")
 # # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -53,6 +53,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'drf_spectacular',
     'notifications',
+    'corsheaders',
+    'django_prometheus',
 ]
 
 MIDDLEWARE = [
@@ -63,6 +65,14 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    'corsheaders.middleware.CorsMiddleware',
+
+    "django_prometheus.middleware.PrometheusBeforeMiddleware",
+    "django_prometheus.middleware.PrometheusAfterMiddleware",
+]
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:8080",
 ]
 
 ROOT_URLCONF = "notification_service.urls"
@@ -109,12 +119,15 @@ DB_PORT     = os.getenv("DB_PORT")
 
 DATABASES = {
     "default": {
-            "ENGINE":   "django.db.backends.postgresql",
+            "ENGINE":   "django_prometheus.db.backends.postgresql",
             "NAME":     DB_NAME,
             "USER":     DB_USER,
             "PASSWORD": DB_PASSWORD,
             "HOST":     DB_HOST,
             "PORT":     DB_PORT,
+            'OPTIONS': {
+                'sslmode': 'require',
+            },
     }
 }
 
